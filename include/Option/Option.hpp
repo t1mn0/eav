@@ -8,7 +8,7 @@
 
 namespace fpp {
 
-template <typename T> requires (!std::is_void_v<T>)
+template <typename T> requires (!std::is_void_v<T> && Copyable<T> && Moveable<T>)
 class Option {
 private: //* fields :
     std::byte _value[sizeof(T)];
@@ -36,11 +36,7 @@ public: //* methods :
     T& value_or_exception();
     const T& value_or_exception() const;
 
-    bool operator==(const Option& other) const {
-        if (_is_initialized != other._is_initialized) return false;
-        if (!_is_initialized) return true;
-        return *reinterpret_cast<T*>(_value) == *reinterpret_cast<T*>(other._value);
-    }
+    bool operator==(const Option<T>& other) const noexcept;
 
     // returns true if the object has been initialized and destroyed
     bool destroy_value() noexcept;
@@ -66,10 +62,24 @@ public: //* methods :
     requires std::invocable<Func, Args...> &&  std::same_as<std::invoke_result_t<Func, Args...>, Option<T>>
     Option<T> or_else(Func&& fn, Args&&... args) &&;
 
+    // coproduction variants (or sum) on the Option<T> monad
+    template <typename U> requires Addable<T, U>
+    Option<T>& operator+=(const Option<U>& rhs);
+
+    template <typename U> requires Subtractable<T, U>
+    Option<T>& operator-=(const Option<U>& rhs);
+
+    template <typename U> requires Multipliable<T, U>
+    Option<T>& operator*=(const Option<U>& rhs);
+
+    template <typename U> requires Dividable<T, U>
+    Option<T>& operator/=(const Option<U>& rhs);
+
 }; // class 'Option'
 
 } // namespace 'fpp'
 
+#include "CoproductOperations.hpp"
 #include "../../src/Option/Option.tpp"
 
 // specialization of std::swap delegating to the Option<T> method

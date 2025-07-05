@@ -27,7 +27,6 @@ private: //* fields :
     };
 
 private: //* methods:
-    void destroy();
 
 public: //* methods :
     //*   <--- constructors, (~)ro5, destructor --->
@@ -79,6 +78,8 @@ public: //* methods :
     static Either fromRight(const R& r) noexcept(std::is_nothrow_copy_constructible_v<R>);
     static Either fromRight(R&& r) noexcept(std::is_nothrow_copy_constructible_v<R>);
 
+
+    void destroy_value();
 }; // class 'Either'
 
 } // namespace 'throwless'

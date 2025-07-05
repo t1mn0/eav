@@ -29,6 +29,29 @@ template <typename M>
 concept Monoid = ...
 #endif
 
+//*   <--- Concepts for for checking that the template type T supports arithmetic operations
+
+template <typename T, typename U = T>
+concept Addable = requires(T a, U b) {
+    { a + b } -> std::convertible_to<T>;
+};
+
+template <typename T, typename U = T>
+concept Subtractable = requires(T a, U b) {
+    { a - b } -> std::convertible_to<T>;
+};
+
+template <typename T, typename U = T>
+concept Multipliable = requires(T a, U b) {
+    { a * b } -> std::convertible_to<T>;
+};
+
+template <typename T, typename U = T>
+concept Dividable = requires(T a, U b) {
+    { a / b } -> std::convertible_to<T>;
+    requires !std::is_same_v<U, bool>;
+};
+
 } // namespace 'fpp'
 
 

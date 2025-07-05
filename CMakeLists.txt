@@ -44,6 +44,6 @@ else()
 
     if(BUILD_TESTS)
         enable_testing()
-        add_subdirectory(test)
+        add_subdirectory(test/Option)
     endif()
 endif()
