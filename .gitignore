@@ -86,6 +86,13 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+build
+build/**/*
+build/
+build/test/
+*/build/
+**/build*/
+build*/
 
 ### CMake Patch ###
 CMakeUserPresets.json
