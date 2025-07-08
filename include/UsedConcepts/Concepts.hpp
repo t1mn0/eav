@@ -1,5 +1,5 @@
-#ifndef FPP_USED_CONCEPTS_H
-#define FPP_USED_CONCEPTS_H
+#ifndef FPP_USED_CONCEPTS_HPP
+#define FPP_USED_CONCEPTS_HPP
 
 #include <type_traits> // for std::invoke_result_t
 #include <functional> // for std::function
@@ -21,6 +21,7 @@ concept Functor = requires(F<T> functor, Func fn) {
     { functor.fmap(fn) } -> std::same_as<F<std::invoke_result_t<Func, T>>>;
 };
 
+// TODO : create a general concept (an analog of a trait) of these functional categories
 #if 0
 template <template <typename> typename M, typename T>
 concept Monad = ...
@@ -55,4 +56,4 @@ concept Dividable = requires(T a, U b) {
 } // namespace 'fpp'
 
 
-#endif // FPP_USED_CONCEPTS_H
+#endif // FPP_USED_CONCEPTS_HPP

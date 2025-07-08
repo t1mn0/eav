@@ -1,92 +1,89 @@
-#ifndef RESULT_H
-#define RESULT_H
+#ifndef FPP_RESULT_HPP
+#define FPP_RESULT_HPP
 
 #include <concepts> // for: std::default_initializable<>;
-#include <type_traits> // for: std::conditional;
-#include <ostream> // for: std::ostream;
-#include <iostream> // for: std::cout;
-#include "../Error/ErrorConcept.hpp" // for concept Error;
+#include <type_traits> // for: std::conditional, std::is_nothrow_constructible;
+#include "../Option/Option.hpp"
+#include "../Error/ErrorConcept.hpp"
 
-namespace throwless {
+namespace fpp {
 
-// used in Result<T, E> if T = void
-struct EmptyStruct {};
-
-template<typename T, typename E> requires Error<E>
+template<typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
 class Result {
-private: //* supstructures :
+private: //* substructures :
     enum class State {
-        Ok,
-        Error,
+        OkState,
+        ErrState,
     };
-
-private: //* usings :
-    using ValueType = std::conditional_t<std::is_void_v<T>, EmptyStruct, T>;
 
 private: //* fields :
     State state;
-    union { ValueType ok_value; E err_value; };
     
-public: //* methods :
+    union {
+        T ok_value;
+        E err_value;
+    };
+    
+public:
+    //*   <--- constructors, (~)ro5, destructor --->
+    Result() = delete;
+    Result(const Result& oth) noexcept(std::is_nothrow_copy_constructible_v<T> && std::is_nothrow_copy_constructible_v<E>);
+    Result(Result&& oth) noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_constructible_v<E>);
+    Result& operator=(const Result& oth) noexcept(std::is_nothrow_copy_constructible_v<T> && std::is_nothrow_copy_constructible_v<E>);
+    Result& operator=(Result&& oth) noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_constructible_v<E>);
+    ~Result();
+
+    void swap(Result<T,E>& oth) 
+        noexcept(std::is_nothrow_swappable_v<T> && std::is_nothrow_move_constructible_v<T> &&
+                 std::is_nothrow_swappable_v<E> && std::is_nothrow_move_constructible_v<E>);
+
+    explicit operator bool() const noexcept;
+
     //*   <--- static mnemonic methods that call the constructor from an argument --->
-    static Result Ok(const ValueType& value) noexcept   requires (!std::is_void_v<T>);
-    static Result Ok(ValueType&& value) noexcept        requires (!std::is_void_v<T>);
+    static Result Ok(const T& val) noexcept   requires (!std::is_void_v<T>);
+    static Result Ok(T&& val) noexcept        requires (!std::is_void_v<T>);
     static Result Err(const E& error) noexcept;
     static Result Err(E&& error) noexcept;
-
-    //*   <--- constructors, (~)ro5, destructor --->
-    Result() noexcept requires std::is_void_v<T>;
-    Result(const Result& other) noexcept;
-    Result(Result&& other) noexcept;
-    Result& operator=(const Result& other) noexcept;
-    Result& operator=(Result&& other) noexcept;
-    ~Result();
 
     //*   <--- specialized algorithms & methods  --->
     bool is_ok() const noexcept;
     bool is_err() const noexcept;
 
-    ValueType& unwrap_or(ValueType& default_value) noexcept;
-    const ValueType& unwrap_or(const ValueType& default_value) const noexcept;
+    Option<T> unwrap() const noexcept(std::is_nothrow_copy_constructible_v<T>);
+    T& unwrap_or(T& val) noexcept(std::is_nothrow_copy_constructible_v<T>);
+    const T& unwrap_or(const T& val) const noexcept(std::is_nothrow_copy_constructible_v<T>);
+    T& unwrap_or_exception();
+    const T& unwrap_or_exception() const;
     T unwrap_or_default() const noexcept requires std::default_initializable<T>;
 
-    E& unwrap_err_or(E& default_err) noexcept;
-    const E& unwrap_err_or(const E& default_err) const noexcept;
-    E unwrap_err_or_default() const noexcept requires std::default_initializable<E>;
+    Option<E> unwrap_err() const noexcept(std::is_nothrow_copy_constructible_v<E>);
+    E& unwrap_err_or_exception(E& err);
+    const E& unwrap_err_or_exception(const E& err) const;
 
     //*   <--- functional methods (from funcprog)  --->
-    // we use the universal reference `Fn&&` (saves the value category (lvalue/rvalue) of the passed object)
-    template<typename Fn, typename U = std::invoke_result_t<Fn, T>>
-    Result<U, E> map(Fn&& fn) const;
+    template<typename Func> requires std::invocable<Func, T>
+    auto fmap(Func&& fn) const -> Result<std::invoke_result_t<Func, T>, E>;
     
-    template<typename Fn, typename OthErr = std::invoke_result_t<Fn, E>>
-    Result<T, OthErr> map_err(Fn&& fn) const;
+    template<typename Func> requires std::invocable<Func, E>
+    auto fmap_err(Func&& fn) const -> Result<T, std::invoke_result_t<Func, E>>;
+    
+    template<typename Func> requires std::invocable<Func, T>
+    auto and_then(Func&& fn) const& -> Result<std::invoke_result_t<Func, T>, E>;
 
-    // TODO : and_then, or_else;
+    template<typename Func, typename... Args> requires std::invocable<Func, E>
+    auto or_else(Func&& fn, Args&&... args) const& -> Result<T, std::invoke_result_t<Func, E>>;
 
-    //?   <--- methods for logging the internal state  --->
-    #if 0
-    Result& log(std::ostream& os = std::cout, const char* message = "") const &;
-    Result&& log(std::ostream& os = std::cout, const char* message = "") const &&;
-    Result& log_if_err(std::ostream& os = std::cerr, const char* message = "") const &;
-    Result&& log_if_err(std::ostream& os = std::cerr, const char* message = "") const &&;
-    Result& log_if_ok(std::ostream& os = std::cout, const char* message = "") const &;
-    Result&& log_if_ok(std::ostream& os = std::cout, const char* message = "") const &&;
-    #endif
+private:
+    //*   <--- constructors that are called by static methods Ok(val), Err(error) --->
+    explicit Result(const T& val) noexcept(std::is_nothrow_copy_constructible_v<T>);
+    explicit Result(T&& val) noexcept(std::is_nothrow_move_constructible_v<T>);
+    explicit Result(const E& error) noexcept(std::is_nothrow_copy_constructible_v<E>);
+    explicit Result(E&& error) noexcept(std::is_nothrow_move_constructible_v<E>);
 
-    // TODO : implement these methods;
+}; // class 'Result'
 
-private: //* methods :
-    //*   <--- constructors that are called by static methods Ok(value), Err(error) --->
-    explicit Result(ValueType&& value) noexcept;
-    explicit Result(const ValueType& value) noexcept;
-    explicit Result(E&& error) noexcept;
-    //explicit Result(const E& error) noexcept;
-
-}; // end of class 'Result'
-
-} // end of namespace 'throwless'
+} // namespace 'fpp'
 
 #include "../../src/Result/Result.tpp"
 
-#endif
+#endif // FPP_RESULT_HPP

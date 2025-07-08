@@ -1,17 +1,20 @@
-#ifndef ERROR_CONCEPT_H
-#define ERROR_CONCEPT_H
+#ifndef FPP_ERROR_CONCEPT_HPP
+#define FPP_ERROR_CONCEPT_HPP
 
 #include <string>
-#include <concepts> // for: std::convertible_to<>;
+#include <concepts> // for: std::convertible_to<T>;
 
-namespace throwless {
+namespace fpp {
 
 //* <--- The basic concept that the "Error" type structure should correspond to --->
 template<typename E>
-concept Error = requires(E e) {
-    { e.message() } -> std::convertible_to<std::string>;
+concept Error = requires(const E& e, E&& moved) {
+    { e.err_message() } -> std::convertible_to<std::string>;
+    requires std::destructible<E>;
+    requires std::copy_constructible<E> || std::move_constructible<E>;
+    requires std::equality_comparable<E>;
 };
 
-} // end of namespace 'throwless'
+} // end of namespace 'fpp'
 
-#endif
+#endif // FPP_ERROR_CONCEPT_HPP

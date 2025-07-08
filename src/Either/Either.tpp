@@ -1,4 +1,4 @@
-#ifndef FPP_EITHER_H
+#ifndef FPP_EITHER_HPP
 #error "Include Either.hpp instead of Either.tpp"
 #endif
 
@@ -30,31 +30,31 @@ Either<L, R>::Either(R&& r) noexcept(std::is_nothrow_move_constructible_v<R>)
 
 template <typename L, typename R>
 requires (!std::is_same_v<L, R> && CopyableOrVoid<L> && CopyableOrVoid<R> && MoveableOrVoid<L> && MoveableOrVoid<R>)
-Either<L, R>::Either(const Either& other) 
+Either<L, R>::Either(const Either& oth) 
     noexcept(std::is_nothrow_copy_constructible_v<L> && std::is_nothrow_copy_constructible_v<R>)
-    : type_tag(other.type_tag) 
+    : type_tag(oth.type_tag) 
 {
-    if (other.is_left()) {
-        left_val = other.left_val;
+    if (oth.is_left()) {
+        left_val = oth.left_val;
     } 
     else {
-        right_val = other.right_val;
+        right_val = oth.right_val;
     }
 }
 
 template <typename L, typename R>
 requires (!std::is_same_v<L, R> && CopyableOrVoid<L> && CopyableOrVoid<R> && MoveableOrVoid<L> && MoveableOrVoid<R>)
-Either<L, R>& Either<L, R>::operator=(const Either& other)
+Either<L, R>& Either<L, R>::operator=(const Either& oth)
     noexcept(std::is_nothrow_copy_constructible_v<L> && std::is_nothrow_copy_constructible_v<R>) 
 {
-    if (this != &other) {
+    if (this != &oth) {
         destroy_value();
-        type_tag = other.type_tag;
-        if (other.is_left()) {
-            left_val = other.left_val;
+        type_tag = oth.type_tag;
+        if (oth.is_left()) {
+            left_val = oth.left_val;
         } 
         else {
-            right_val = other.right_val;
+            right_val = oth.right_val;
         }
     }
     return *this;
@@ -62,34 +62,34 @@ Either<L, R>& Either<L, R>::operator=(const Either& other)
 
 template <typename L, typename R>
 requires (!std::is_same_v<L, R> && CopyableOrVoid<L> && CopyableOrVoid<R> && MoveableOrVoid<L> && MoveableOrVoid<R>)
-Either<L, R>::Either(Either&& other)
+Either<L, R>::Either(Either&& oth)
     noexcept(std::is_nothrow_move_constructible_v<L> && std::is_nothrow_move_constructible_v<R>)
 {
-    type_tag = other.type_tag;
-    if (other.is_left()) {
-        new (&left_val) L(std::move(other.left_val));
-        other.left_val.~L();
+    type_tag = oth.type_tag;
+    if (oth.is_left()) {
+        new (&left_val) L(std::move(oth.left_val));
+        oth.left_val.~L();
     } 
-    else if (other.is_right()){
-        new (&right_val) R(std::move(other.right_val));
-        other.right_val.~R();
+    else if (oth.is_right()){
+        new (&right_val) R(std::move(oth.right_val));
+        oth.right_val.~R();
     }
 }
 
 template <typename L, typename R>
 requires (!std::is_same_v<L, R> && CopyableOrVoid<L> && CopyableOrVoid<R> && MoveableOrVoid<L> && MoveableOrVoid<R>)
-Either<L, R>& Either<L, R>::operator=(Either&& other)
+Either<L, R>& Either<L, R>::operator=(Either&& oth)
     noexcept(std::is_nothrow_move_constructible_v<L> && std::is_nothrow_move_constructible_v<R>) {
-    if (this != &other) {
+    if (this != &oth) {
         destroy_value();
-        type_tag = other.type_tag;
-        if (other.is_left()) {
-            new (&left_val) L(std::move(other.left_val));
-            other.left_val.~L();
+        type_tag = oth.type_tag;
+        if (oth.is_left()) {
+            new (&left_val) L(std::move(oth.left_val));
+            oth.left_val.~L();
         } 
         else {
-            new (&right_val) R(std::move(other.right_val));
-            other.right_val.~R();
+            new (&right_val) R(std::move(oth.right_val));
+            oth.right_val.~R();
         }
     }
 
@@ -220,15 +220,15 @@ const R& Either<L, R>::right_value_or_exception() const {
 
 template <typename L, typename R>
 requires (!std::is_same_v<L, R> && CopyableOrVoid<L> && CopyableOrVoid<R> && MoveableOrVoid<L> && MoveableOrVoid<R>)
-void Either<L, R>::swap(Either<L,R>& other) 
+void Either<L, R>::swap(Either<L,R>& oth) 
     noexcept(std::is_nothrow_move_constructible_v<L> && std::is_nothrow_move_constructible_v<R> && 
              std::is_nothrow_move_assignable_v<L> && std::is_nothrow_move_assignable_v<R>)
 {
-    if (this == &other) return;
+    if (this == &oth) return;
     
     Either temp(std::move(*this));
-    *this = std::move(other);
-    other = std::move(temp);
+    *this = std::move(oth);
+    oth = std::move(temp);
 }
 
 template <typename L, typename R>
@@ -257,7 +257,7 @@ template <typename L, typename R>
 requires (!std::is_same_v<L, R> && CopyableOrVoid<L> && CopyableOrVoid<R> && MoveableOrVoid<L> && MoveableOrVoid<R>)
 template <typename Func>
 requires (std::invocable<Func, L>)
-auto Either<L, R>::fmap_left(Func&& fn) const & -> Either<std::invoke_result_t<Func,L>, R> {
+auto Either<L, R>::fmap_left(Func&& fn) const -> Either<std::invoke_result_t<Func,L>, R> {
     if (is_left()) {
         return Either<std::invoke_result_t<Func,L>, R>::from_left(
             std::forward<Func>(fn)(left_val));
@@ -269,7 +269,7 @@ template <typename L, typename R>
 requires (!std::is_same_v<L, R> && CopyableOrVoid<L> && CopyableOrVoid<R> && MoveableOrVoid<L> && MoveableOrVoid<R>)
 template <typename Func>
 requires (std::invocable<Func, R>)
-auto Either<L, R>::fmap_right(Func&& fn) const & -> Either<L, std::invoke_result_t<Func,R>> {
+auto Either<L, R>::fmap_right(Func&& fn) const -> Either<L, std::invoke_result_t<Func,R>> {
     if (is_right()) {
         return Either<L, std::invoke_result_t<Func,R>>::from_right(
             std::forward<Func>(fn)(right_val));

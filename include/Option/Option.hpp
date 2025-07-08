@@ -1,5 +1,5 @@
-#ifndef FPP_OPTION_H
-#define FPP_OPTION_H
+#ifndef FPP_OPTION_HPP
+#define FPP_OPTION_HPP
 
 #include <cstddef> // for: std::byte;
 #include <concepts> // for: default_initializable, std::invocable;
@@ -20,13 +20,13 @@ public: //* methods :
     explicit Option(const T& val) noexcept(std::is_nothrow_copy_constructible_v<T>);
     explicit Option(T&& val) noexcept(std::is_nothrow_move_constructible_v<T>);
 
-    Option(const Option<T>& oth) noexcept(std::is_nothrow_copy_constructible_v<T>);
-    Option(Option<T>&& oth) noexcept(std::is_nothrow_move_constructible_v<T>);
+    Option(const Option& oth) noexcept(std::is_nothrow_copy_constructible_v<T>);
+    Option(Option&& oth) noexcept(std::is_nothrow_move_constructible_v<T>);
 
-    Option& operator=(const Option<T>& oth) noexcept(std::is_nothrow_copy_constructible_v<T> && std::is_nothrow_copy_assignable_v<T>);
-    Option& operator=(Option<T>&& oth) noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_assignable_v<T>);
+    Option& operator=(const Option& oth) noexcept(std::is_nothrow_copy_constructible_v<T> && std::is_nothrow_copy_assignable_v<T>);
+    Option& operator=(Option&& oth) noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_assignable_v<T>);
 
-    void swap(Option<T>& oth) noexcept(std::is_nothrow_swappable_v<T> && std::is_nothrow_move_constructible_v<T>);
+    void swap(Option& oth) noexcept(std::is_nothrow_swappable_v<T> && std::is_nothrow_move_constructible_v<T>);
     
     explicit operator bool() const noexcept;
 
@@ -41,7 +41,7 @@ public: //* methods :
     T& value_or_exception();
     const T& value_or_exception() const;
 
-    bool operator==(const Option<T>& other) const noexcept;
+    bool operator==(const Option<T>& oth) const noexcept;
 
     // returns true if the object has been initialized and destroyed
     bool destroy_value() noexcept;
@@ -91,4 +91,4 @@ void swap(fpp::Option<T>& a, fpp::Option<T>& b) noexcept(noexcept(a.swap(b))) {
 
 } // namespace 'std'
 
-#endif // FPP_OPTION_H
+#endif // FPP_OPTION_HPP

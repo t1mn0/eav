@@ -1,4 +1,4 @@
-#ifndef FPP_OPTION_H
+#ifndef FPP_OPTION_HPP
 #error "Include Option.hpp instead of Option.tpp"
 #endif
 
@@ -110,10 +110,10 @@ T& Option<T>::value_or_exception() {
 }
 
 template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
-bool Option<T>::operator==(const Option& other) const noexcept {
-    if (_is_initialized != other._is_initialized) return false;
+bool Option<T>::operator==(const Option& oth) const noexcept {
+    if (_is_initialized != oth._is_initialized) return false;
     if (!_is_initialized) return true;
-    return *reinterpret_cast<T*>(_value) == *reinterpret_cast<T*>(other._value);
+    return *reinterpret_cast<T*>(_value) == *reinterpret_cast<T*>(oth._value);
 }
 
 

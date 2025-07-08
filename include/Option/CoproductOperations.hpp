@@ -1,8 +1,8 @@
-#include "Option.hpp"
-
-#ifndef FPP_OPTION_H
+#ifndef FPP_OPTION_HPP
 #error "Include Option.hpp instead of CoproductOperation.tpp"
 #endif
+
+#include "Option.hpp"
 
 #include <utility> // for: std::declval;
 #include <type_traits> // for: is_integral_v;

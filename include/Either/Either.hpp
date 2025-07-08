@@ -1,5 +1,5 @@
-#ifndef FPP_EITHER_H
-#define FPP_EITHER_H
+#ifndef FPP_EITHER_HPP
+#define FPP_EITHER_HPP
 
 #include <utility> // for std::move;
 #include <type_traits> // for std::is_nothrow_constructible, std::is_same_v, std::invokable, etc;
@@ -25,6 +25,7 @@ private: //* fields :
         L left_val;
         R right_val;
     };
+
 private: //*methods :
     void destroy_value() noexcept;
 
@@ -38,14 +39,14 @@ public: //* methods :
     explicit Either(const R& r) noexcept(std::is_nothrow_copy_constructible_v<R>);
     explicit Either(R&& r) noexcept(std::is_nothrow_move_constructible_v<R>);
 
-    Either(const Either& other)
+    Either(const Either& oth)
         noexcept(std::is_nothrow_copy_constructible_v<L> && std::is_nothrow_copy_constructible_v<R>);
-    Either& operator=(const Either& other) 
+    Either& operator=(const Either& oth) 
         noexcept(std::is_nothrow_copy_constructible_v<L> && std::is_nothrow_copy_constructible_v<R>);
 
-    Either(Either&& other) 
+    Either(Either&& oth) 
         noexcept(std::is_nothrow_move_constructible_v<L> && std::is_nothrow_move_constructible_v<R>);
-    Either& operator=(Either&& other) 
+    Either& operator=(Either&& oth) 
         noexcept(std::is_nothrow_move_constructible_v<L> && std::is_nothrow_move_constructible_v<R>);
 
     ~Either() noexcept;
@@ -76,20 +77,21 @@ public: //* methods :
     Either<R, L> transpose_types() const & 
         noexcept(std::is_nothrow_move_constructible_v<L> && std::is_nothrow_move_constructible_v<R>);
 
-    void swap(Either<L,R>& other) 
+    void swap(Either<L,R>& oth) 
         noexcept(std::is_nothrow_move_constructible_v<L> && std::is_nothrow_move_constructible_v<R> && 
             std::is_nothrow_move_assignable_v<L> && std::is_nothrow_move_assignable_v<R>);
 
     //*   <--- functional methods --->
     template <typename Func>
-    requires (std::invocable<Func, L>)
-    auto fmap_left(Func&& fn) const & -> Either<std::invoke_result_t<Func,L>, R>;
+    requires std::invocable<Func, L>
+    auto fmap_left(Func&& fn) const -> Either<std::invoke_result_t<Func,L>, R>;
 
     template <typename Func>
-    requires (std::invocable<Func, R>)
-    auto fmap_right(Func&& fn) const & -> Either<L, std::invoke_result_t<Func,R>>;
+    requires std::invocable<Func, R>
+    auto fmap_right(Func&& fn) const -> Either<L, std::invoke_result_t<Func,R>>;
 
-    // TODO : add type conversion support type without cutting the fmap method by 2
+    // TODO : implement it with type-conversion support without cutting the fmap method by 2 :
+    // fmap -> FuncForLeft ? Either<invoke<Func,L>, R> : Either<L, invoke<Func,R>
     #if 0
     template <typename Func>
     Either<L, R> fmap(Func&& f) const;
@@ -113,4 +115,4 @@ void swap(fpp::Either<L, R>& a, fpp::Either<L, R>& b) noexcept(noexcept(a.swap(b
 
 } // namespace 'std'
 
-#endif // FPP_EITHER_H
+#endif // FPP_EITHER_HPP

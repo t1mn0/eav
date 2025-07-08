@@ -1,4 +1,4 @@
-#ifndef FPP_EITHER_H
+#ifndef FPP_EITHER_HPP
 #error "Include Either.hpp instead of Specializations.hpp"
 #endif
 
