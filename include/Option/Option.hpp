@@ -67,6 +67,10 @@ public: //* methods :
     // returns true if the object has been initialized and destroyed
     bool destroy_value() noexcept;
 
+    //*   <--- static mnemonic methods --->
+    template <typename... Args> requires std::constructible_from<T, Args...> && (!std::is_array_v<T>)
+    static Option emplace(Args&&... args) noexcept(std::is_nothrow_constructible_v<T, Args...>);
+
     //*   <--- functional methods --->
     template <typename Func> requires std::invocable<Func, T>
     auto fmap(Func&& fn)
@@ -101,6 +105,13 @@ private: //* friends :
     friend class Either;
 
 }; // class 'Option'
+
+//* <--- external mnemonic functions --->
+template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
+Option<T> None() noexcept;
+
+template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
+Option<T> Some(T val) noexcept(std::is_nothrow_move_constructible_v<T>);
 
 } // namespace 'fpp'
 

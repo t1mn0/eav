@@ -176,6 +176,15 @@ bool Option<T>::destroy_value() noexcept {
     return false;
 }
 
+template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
+template <typename... Args> requires std::constructible_from<T, Args...> && (!std::is_array_v<T>)
+Option<T> Option<T>::emplace(Args&&...args) noexcept(std::is_nothrow_constructible_v<T, Args...>) {
+    Option<T> opt;
+    new (opt._value) T(std::forward<Args>(args)...);
+    opt._is_initialized = true;
+    return opt;
+}
+
 //*   <--- functional methods indicating relationship to the type of func_structure  --->
 
 template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
@@ -251,6 +260,18 @@ Option<T>& Option<T>::operator/=(const Option<U>& rhs) {
         _is_initialized = false;
     }
     return *this;
+}
+
+//* <--- external mnemonic functions --->
+
+template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
+Option<T> None() noexcept {
+    return Option<T>();
+}
+
+template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
+Option<T> Some(T val) noexcept(std::is_nothrow_move_constructible_v<T>) {
+    return Option<T>(std::move(val));
 }
 
 } // namespace 'fpp'
