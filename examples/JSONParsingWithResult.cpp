@@ -4,6 +4,9 @@
 
 #include "../include/Result/Result.hpp"
 
+// these are only simulating examples, which omit many functional subtleties.
+// it demonstrate the using of fpp libraries in "everyday" code.
+
 using json = nlohmann::json;
 
 struct Config {

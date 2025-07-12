@@ -5,7 +5,9 @@
 
 #include "../include/Option/Option.hpp"
 
-// caching system, where the value may be invalid or missing
+// these are only simulating examples, which omit many functional subtleties.
+// it demonstrate the using of fpp libraries in "everyday" code.
+
 template <typename K, typename V>
 class Cache {
     struct Entry {

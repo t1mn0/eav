@@ -2,6 +2,9 @@
 
 #include "../include/Either/Either.hpp"
 
+// these are only simulating examples, which omit many functional subtleties.
+// it demonstrate the using of fpp libraries in "everyday" code.
+
 struct Meters {
     double value;
 };
