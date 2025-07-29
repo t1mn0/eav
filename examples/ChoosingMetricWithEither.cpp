@@ -17,10 +17,10 @@ using Length = fpp::Either<Meters, Feet>;
 
 void printLength(const Length& len) {
     if (len.is_left()){
-        std::cout << "Length: " << len.left_value_or_exception().value << " meters\n";
+        std::cout << "Length: " << len.left_value().value << " meters\n";
     }
     else {
-        std::cout << "Length: " << len.right_value_or_exception().value << " feet\n";
+        std::cout << "Length: " << len.right_value().value << " feet\n";
     }
 }
 

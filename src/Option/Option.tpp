@@ -98,13 +98,13 @@ T Option<T>::value_or_default() noexcept requires std::default_initializable<T> 
 }
 
 template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
-const T& Option<T>::value_or_exception() const {
+const T& Option<T>::value() const {
     if (!_is_initialized) throw std::bad_optional_access();
     return *reinterpret_cast<const T*>(_value);
 }
 
 template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
-T& Option<T>::value_or_exception() {
+T& Option<T>::value() {
     if (!_is_initialized) throw std::bad_optional_access();
     return *reinterpret_cast<T*>(_value);
 }
@@ -119,7 +119,7 @@ bool Option<T>::operator==(const Option& oth) const noexcept {
 template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
 Either<T, void> Option<T>::to_either_left() const & {
     if (this->has_value()) {
-        return Either<T, void>::from_left(this->value_or_exception());
+        return Either<T, void>::from_left(this->value());
     }
     return Either<T, void>::from_right();
 }
@@ -127,7 +127,7 @@ Either<T, void> Option<T>::to_either_left() const & {
 template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
 Either<T, void> Option<T>::to_either_left() && {
     if (this->has_value()) {
-        return Either<T, void>::from_left(std::move(*this).value_or_exception());
+        return Either<T, void>::from_left(std::move(*this).value());
     }
     return Either<T, void>::from_right();
 }
@@ -135,7 +135,7 @@ Either<T, void> Option<T>::to_either_left() && {
 template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
 Either<void, T> Option<T>::to_either_right() const & {
     if (this->has_value()) {
-        return Either<void, T>::from_right(this->value_or_exception());
+        return Either<void, T>::from_right(this->value());
     }
     return Either<void, T>::from_left();
 }
@@ -143,7 +143,7 @@ Either<void, T> Option<T>::to_either_right() const & {
 template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
 Either<void, T> Option<T>::to_either_right() && {
     if (this->has_value()) {
-        return Either<void, T>::from_right(std::move(*this).value_or_exception());
+        return Either<void, T>::from_right(std::move(*this).value());
     }
     return Either<void, T>::from_left();
 }
@@ -152,7 +152,7 @@ template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && Movea
 template <typename E> requires (!std::is_void_v<T> && Error<E>)
 Result<T, E> Option<T>::to_result(E error_if_none) const & {
     if (has_value()) {
-        return Result<T, E>::Ok(value_or_exception());
+        return Result<T, E>::Ok(value());
     }
     return Result<T, E>::Err(error_if_none);
 }
@@ -161,7 +161,7 @@ template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && Movea
 template <typename E> requires (!std::is_void_v<T> && Error<E>)
 Result<T, E> Option<T>::to_result(E error_if_none) && {
     if (has_value()) {
-        return Result<T, E>::Ok(std::move(*this).value_or_exception());
+        return Result<T, E>::Ok(std::move(*this).value());
     }
     return Result<T, E>::Err(error_if_none);
 }
@@ -218,7 +218,7 @@ template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && Movea
 template <typename U> requires Addable<T, U>
 Option<T>& Option<T>::operator+=(const Option<U>& rhs) {
     if (has_value() && rhs.has_value()) {
-        *reinterpret_cast<T*>(_value) += rhs.value_or_exception();
+        *reinterpret_cast<T*>(_value) += rhs.value();
     } 
     else {
         _is_initialized = false;
@@ -230,7 +230,7 @@ template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && Movea
 template <typename U> requires Subtractable<T, U>
 Option<T>& Option<T>::operator-=(const Option<U>& rhs) {
     if (has_value() && rhs.has_value()) {
-        *reinterpret_cast<T*>(_value) -= rhs.value_or_exception();
+        *reinterpret_cast<T*>(_value) -= rhs.value();
     } 
     else {
         _is_initialized = false;
@@ -242,7 +242,7 @@ template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && Movea
 template <typename U> requires Multipliable<T, U>
 Option<T>& Option<T>::operator*=(const Option<U>& rhs) {
     if (has_value() && rhs.has_value()) {
-        *reinterpret_cast<T*>(_value) *= rhs.value_or_exception();
+        *reinterpret_cast<T*>(_value) *= rhs.value();
     } 
     else {
         _is_initialized = false;
@@ -254,7 +254,7 @@ template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && Movea
 template <typename U> requires Dividable<T, U>
 Option<T>& Option<T>::operator/=(const Option<U>& rhs) {
     if (has_value() && rhs.has_value()) {
-        *reinterpret_cast<T*>(_value) /= rhs.value_or_exception();
+        *reinterpret_cast<T*>(_value) /= rhs.value();
     } 
     else {
         _is_initialized = false;

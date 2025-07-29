@@ -46,8 +46,8 @@ public: //* methods :
     T& value_or(T& val) noexcept;
     const T& value_or(const T& val) const noexcept;
     T value_or_default() noexcept requires std::default_initializable<T>;
-    T& value_or_exception();
-    const T& value_or_exception() const;
+    T& value();
+    const T& value() const;
 
     bool operator==(const Option<T>& oth) const noexcept;
 

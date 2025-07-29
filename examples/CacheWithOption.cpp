@@ -50,7 +50,7 @@ int main() {
 
     std::cout << "Is price initialized: " << price_first_request.has_value() << "\n";
     if (price_first_request.has_value()){
-        std::cout << "Price value: " << price_first_request.value_or_exception() << "\n"; //! all good;
+        std::cout << "Price value: " << price_first_request.value() << "\n"; //! all good;
     }
 
     std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -58,7 +58,7 @@ int main() {
     
     std::cout << "Is price initialized: " << price_second_request.has_value() << "\n";
     if (price_second_request.has_value()){
-        std::cout << "Price value: " << price_second_request.value_or_exception() << "\n"; //! expired;
+        std::cout << "Price value: " << price_second_request.value() << "\n"; //! expired;
     }
 
     return 0;

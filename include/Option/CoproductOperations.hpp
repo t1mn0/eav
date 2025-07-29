@@ -17,7 +17,7 @@ auto operator+(const Option<T>& lhs, const Option<U>& rhs)
 {
     if (lhs.has_value() && rhs.has_value()) {
         return Option<decltype(std::declval<T>() + std::declval<U>())>(
-            lhs.value_or_exception() + rhs.value_or_exception()
+            lhs.value() + rhs.value()
         );
     }
     return Option<decltype(std::declval<T>() + std::declval<U>())>();
@@ -30,7 +30,7 @@ auto operator-(const Option<T>& lhs, const Option<U>& rhs)
 {
     if (lhs.has_value() && rhs.has_value()) {
         return Option<decltype(std::declval<T>() - std::declval<U>())>(
-            lhs.value_or_exception() - rhs.value_or_exception()
+            lhs.value() - rhs.value()
         );
     }
     return Option<decltype(std::declval<T>() - std::declval<U>())>();
@@ -43,7 +43,7 @@ auto operator*(const Option<T>& lhs, const Option<U>& rhs)
 {
     if (lhs.has_value() && rhs.has_value()) {
         return Option<decltype(std::declval<T>() * std::declval<U>())>(
-            lhs.value_or_exception() * rhs.value_or_exception()
+            lhs.value() * rhs.value()
         );
     }
     return Option<decltype(std::declval<T>() * std::declval<U>())>();
@@ -56,10 +56,10 @@ auto operator/(const Option<T>& lhs, const Option<U>& rhs)
 {
     if (lhs.has_value() && rhs.has_value()) {
         if constexpr (std::is_integral_v<T> && std::is_integral_v<U>) {
-            if (rhs.value_or_exception() == 0) return Option<decltype(std::declval<T>() / std::declval<U>())>();
+            if (rhs.value() == 0) return Option<decltype(std::declval<T>() / std::declval<U>())>();
         }
         return Option<decltype(std::declval<T>() / std::declval<U>())>(
-            lhs.value_or_exception() / rhs.value_or_exception()
+            lhs.value() / rhs.value()
         );
     }
     return Option<decltype(std::declval<T>() / std::declval<U>())>();

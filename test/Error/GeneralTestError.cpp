@@ -33,16 +33,16 @@ TEST(TryOrConvertTest, BasicFunctionality) {
     auto success_fn = []() -> int { return 42; };
     auto success_result = fpp::try_or_convert(success_fn);
     EXPECT_TRUE(success_result.is_ok());
-    EXPECT_EQ(success_result.unwrap_or_exception(), 42);
+    EXPECT_EQ(success_result.unwrap_val(), 42);
     
     auto throwing_fn = []() -> int { throw std::runtime_error("Test error"); };
     auto error_result = fpp::try_or_convert(throwing_fn);
     EXPECT_TRUE(error_result.is_err());
-    EXPECT_TRUE(error_result.unwrap_err_or_exception().err_message().find("runtime_error") != std::string::npos);
-    EXPECT_TRUE(error_result.unwrap_err_or_exception().err_message().find("Test error") != std::string::npos);
+    EXPECT_TRUE(error_result.unwrap_err().err_message().find("runtime_error") != std::string::npos);
+    EXPECT_TRUE(error_result.unwrap_err().err_message().find("Test error") != std::string::npos);
     
     auto unknown_throwing_fn = []() -> int { throw 42; };
     auto unknown_error_result = fpp::try_or_convert(unknown_throwing_fn);
     EXPECT_TRUE(unknown_error_result.is_err());
-    EXPECT_EQ(unknown_error_result.unwrap_err_or_exception().err_message(), "[unknown]: Unknown exception");
+    EXPECT_EQ(unknown_error_result.unwrap_err().err_message(), "[unknown]: Unknown exception");
 }

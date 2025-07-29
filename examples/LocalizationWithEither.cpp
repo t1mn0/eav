@@ -18,10 +18,10 @@ using LocalizedString = fpp::Either<EnglishLanguage, RussianLanguage>;
 
 void greet(const LocalizedString& str) {
     if (str.is_left()){
-        std::cout << "Hello, " << str.left_value_or_exception().message << "!\n";
+        std::cout << "Hello, " << str.left_value().message << "!\n";
     }
     else{
-        std::cout << "Привет, " << str.right_value_or_exception().message << "!\n";
+        std::cout << "Привет, " << str.right_value().message << "!\n";
     }
 }
 

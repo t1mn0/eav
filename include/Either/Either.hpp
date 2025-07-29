@@ -61,8 +61,8 @@ public: //* methods :
     bool is_left() const noexcept;
     bool is_right() const noexcept;
 
-    Option<L> left_value() noexcept;
-    Option<R> right_value() noexcept;
+    Option<L> left_opt_value() noexcept;
+    Option<R> right_opt_value() noexcept;
 
     L left_value_or(L& val) noexcept(std::is_nothrow_copy_constructible_v<L>);  
     R right_value_or(R& val) noexcept(std::is_nothrow_copy_constructible_v<R>);
@@ -71,8 +71,8 @@ public: //* methods :
     L left_value_or_default() noexcept(std::is_nothrow_copy_constructible_v<L>) requires std::default_initializable<L>;
     R right_value_or_default() noexcept(std::is_nothrow_copy_constructible_v<R>) requires std::default_initializable<R>;
 
-    const L& left_value_or_exception() const;
-    const R& right_value_or_exception() const;
+    const L& left_value() const;
+    const R& right_value() const;
 
     Either<R, L> transpose_types() const & 
         noexcept(std::is_nothrow_move_constructible_v<L> && std::is_nothrow_move_constructible_v<R>);

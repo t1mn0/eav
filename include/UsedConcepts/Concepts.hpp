@@ -6,7 +6,7 @@
 
 namespace fpp {
 
-//*   <--- Concepts for objects, methods, constraints
+//*   <--- Concepts for objects, methods, constraints --->
 
 template <typename T>
 concept CopyableOrVoid = std::same_as<T, void> || (std::is_copy_constructible_v<T> && std::is_copy_assignable_v<T>);
@@ -14,7 +14,7 @@ concept CopyableOrVoid = std::same_as<T, void> || (std::is_copy_constructible_v<
 template <typename T>
 concept MoveableOrVoid = std::same_as<T, void> || (std::is_move_constructible_v<T> && std::is_move_assignable_v<T>);
 
-//*   <--- Concepts for for the general structure of the created functional entities
+//*   <--- Concepts for for the general structure of the created functional entities --->
 
 template <template <typename> typename F, typename T, typename Func>
 concept Functor = requires(F<T> functor, Func fn) {
@@ -30,7 +30,7 @@ template <typename M>
 concept Monoid = ...
 #endif
 
-//*   <--- Concepts for for checking that the template type T supports arithmetic operations
+//*   <--- Concepts for for checking that the template type T supports arithmetic operations --->
 
 template <typename T, typename U = T>
 concept Addable = requires(T a, U b) {

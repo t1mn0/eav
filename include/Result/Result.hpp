@@ -63,16 +63,16 @@ public:
     bool is_ok() const noexcept;
     bool is_err() const noexcept;
 
-    Option<T> unwrap() const noexcept(std::is_nothrow_copy_constructible_v<T>);
-    T& unwrap_or(T& val) noexcept(std::is_nothrow_copy_constructible_v<T>);
-    const T& unwrap_or(const T& val) const noexcept(std::is_nothrow_copy_constructible_v<T>);
-    T& unwrap_or_exception();
-    const T& unwrap_or_exception() const;
-    T unwrap_or_default() const noexcept requires std::default_initializable<T>;
+    Option<T> unwrap_to_opt_val() const noexcept(std::is_nothrow_copy_constructible_v<T>);
+    T& unwrap_val_or(T& val) noexcept(std::is_nothrow_copy_constructible_v<T>);
+    const T& unwrap_val_or(const T& val) const noexcept(std::is_nothrow_copy_constructible_v<T>);
+    T& unwrap_val();
+    const T& unwrap_val() const;
+    T unwrap_val_or_default() const noexcept requires std::default_initializable<T>;
 
-    Option<E> unwrap_err() const noexcept(std::is_nothrow_copy_constructible_v<E>);
-    E& unwrap_err_or_exception();
-    const E& unwrap_err_or_exception() const;
+    Option<E> unwrap_to_opt_err() const noexcept(std::is_nothrow_copy_constructible_v<E>);
+    E& unwrap_err();
+    const E& unwrap_err() const;
 
     //*   <--- functional methods (from funcprog)  --->
     template<typename Func> requires std::invocable<Func, T>

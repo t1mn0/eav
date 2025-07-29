@@ -144,7 +144,7 @@ bool Either<L, R>::is_right() const noexcept {
 
 template <typename L, typename R>
 requires (!std::is_same_v<L, R> && CopyableOrVoid<L> && CopyableOrVoid<R> && MoveableOrVoid<L> && MoveableOrVoid<R>)
-Option<L> Either<L, R>::left_value() noexcept {
+Option<L> Either<L, R>::left_opt_value() noexcept {
     if (is_left()) {
         return Option<L>(left_val);
     }
@@ -153,7 +153,7 @@ Option<L> Either<L, R>::left_value() noexcept {
 
 template <typename L, typename R>
 requires (!std::is_same_v<L, R> && CopyableOrVoid<L> && CopyableOrVoid<R> && MoveableOrVoid<L> && MoveableOrVoid<R>)
-Option<R> Either<L, R>::right_value() noexcept {
+Option<R> Either<L, R>::right_opt_value() noexcept {
     if (is_right()) {
         return Option<R>(right_val);
     }
@@ -202,7 +202,7 @@ R Either<L, R>::right_value_or_default() noexcept(std::is_nothrow_copy_construct
 
 template <typename L, typename R>
 requires (!std::is_same_v<L, R> && CopyableOrVoid<L> && CopyableOrVoid<R> && MoveableOrVoid<L> && MoveableOrVoid<R>)
-const L& Either<L, R>::left_value_or_exception() const {
+const L& Either<L, R>::left_value() const {
     if (is_left()) {
         return left_val;
     }
@@ -211,7 +211,7 @@ const L& Either<L, R>::left_value_or_exception() const {
 
 template <typename L, typename R>
 requires (!std::is_same_v<L, R> && CopyableOrVoid<L> && CopyableOrVoid<R> && MoveableOrVoid<L> && MoveableOrVoid<R>)
-const R& Either<L, R>::right_value_or_exception() const {
+const R& Either<L, R>::right_value() const {
     if (is_right()) {
         return right_val;
     }

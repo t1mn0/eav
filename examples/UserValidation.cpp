@@ -37,10 +37,10 @@ fpp::Result<int, ValidationError> validate_age(int age) {
 
 fpp::Result<bool, ValidationError> register_user(const std::string& email, int age) {
     const auto valid_email = validate_email(email);
-    if (valid_email.is_err()) return fpp::Result<bool, ValidationError>::Err(valid_email.unwrap_err_or_exception());
+    if (valid_email.is_err()) return fpp::Result<bool, ValidationError>::Err(valid_email.unwrap_err());
     
     const auto valid_age = validate_age(age);
-    if (valid_age.is_err()) return fpp::Result<bool, ValidationError>::Err(valid_age.unwrap_err_or_exception());
+    if (valid_age.is_err()) return fpp::Result<bool, ValidationError>::Err(valid_age.unwrap_err());
     
     const auto reg_result = fpp::try_or_convert([&]() {
         if (email == "admin@example.com") {
@@ -50,7 +50,7 @@ fpp::Result<bool, ValidationError> register_user(const std::string& email, int a
     });
     
     if (reg_result.is_err()) return fpp::Result<bool, ValidationError>::Err(
-        ValidationError{"email", reg_result.unwrap_err_or_exception().err_message()});
+        ValidationError{"email", reg_result.unwrap_err().err_message()});
     
     std::cout << "User registered successfully!\n";
     return fpp::Result<bool, ValidationError>::Ok(true);
@@ -60,7 +60,7 @@ int main() {
     const auto result = register_user("test@example.com", 16); // try to change some field and check output
     
     if (result.is_err()) {
-        std::cerr << "Registration failed:\n" << result.unwrap_err_or_exception().err_message() << "\n";
+        std::cerr << "Registration failed:\n" << result.unwrap_err().err_message() << "\n";
         return 1;
     }
     

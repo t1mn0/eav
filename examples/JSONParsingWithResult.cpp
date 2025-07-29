@@ -48,17 +48,17 @@ int main() {
     auto result2 = parseConfig(goodConfig);
 
     if (result1.is_err()) {
-        std::cout << "Config loaded: {error: '" << result1.unwrap_err_or_exception().err_message() << "'}\n";
+        std::cout << "Config loaded: {error: '" << result1.unwrap_err().err_message() << "'}\n";
     }
 
     if (result2.is_ok()) {
-        auto cfg = result2.unwrap_or_exception();
+        auto cfg = result2.unwrap_val();
         std::cout << "Config loaded: {host: " << cfg.host << ", port: " << cfg.port << "}\n";
     }
 
-    // I used the unwrap_err_or_exception() and unwrap_or_exception() methods 
+    // I used the unwrap_err() and unwrap_val() methods 
     // because in this case I am sure that the exception will not be thrown. 
-    // But it is better to write the unwrap() methods, 
+    // But it is better to write the unwrap_to_opt_val() methods, 
     // check the received Option<T> object for has_value() and work with it already.
     
     return 0;

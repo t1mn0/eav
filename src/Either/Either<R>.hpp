@@ -71,14 +71,14 @@ public:
 
     static Either from_option(const Option<R>& opt) noexcept {
         if (opt.has_value()) {
-            return Either<void, R>::from_right(opt.value_or_exception());
+            return Either<void, R>::from_right(opt.value());
         }
         return Either<void, R>::from_left();
     }
 
     static Either from_option(Option<R>&& opt) noexcept {
         if (opt.has_value()) {
-            return Either<void, R>::from_right(std::move(opt).value_or_exception());
+            return Either<void, R>::from_right(std::move(opt).value());
         }
         return Either<void, R>::from_left();
     }
@@ -86,7 +86,7 @@ public:
     bool is_left() const noexcept { return !maybe_right_val.has_value(); }
     bool is_right() const noexcept { return maybe_right_val.has_value(); }
 
-    Option<R> right_value() noexcept {
+    Option<R> right_opt_value() noexcept {
         if (is_right()) {
             return maybe_right_val;
         }
@@ -107,15 +107,15 @@ public:
         return is_right() ? *reinterpret_cast<R*>(maybe_right_val._value) : R();
     }
 
-    const R& right_value_or_exception() const {
+    const R& right_value() const {
         if (is_right()) {
-            return maybe_right_val.value_or_exception();
+            return maybe_right_val.value();
         }
         throw std::runtime_error("Either does not contain right value");
     }
 
     //? It may be worth reviewing and considering the void-value
-    void left_value_or_exception() const {
+    void left_value() const {
         if (!is_left()) {
             throw std::runtime_error("Either does not contain left value");
         }

@@ -6,21 +6,21 @@
 TEST(EitherTest, ValueConstructors) {
     fpp::Either<int, std::string> left(42);
     EXPECT_TRUE(left.is_left());
-    EXPECT_EQ(left.left_value_or_exception(), 42);
+    EXPECT_EQ(left.left_value(), 42);
 
     fpp::Either<int, std::string> right("error");
     EXPECT_TRUE(right.is_right());
-    EXPECT_EQ(right.right_value_or_exception(), "error");
+    EXPECT_EQ(right.right_value(), "error");
 }
 
 TEST(EitherTest, MoveConstructors) {
     fpp::Either<std::string, int> left(std::string("test"));
     EXPECT_TRUE(left.is_left());
-    EXPECT_EQ(left.left_value_or_exception(), "test");
+    EXPECT_EQ(left.left_value(), "test");
 
     fpp::Either<std::string, int> right(42);
     EXPECT_TRUE(right.is_right());
-    EXPECT_EQ(right.right_value_or_exception(), 42);
+    EXPECT_EQ(right.right_value(), 42);
 }
 
 TEST(EitherTest, CopyOperations) {
@@ -28,7 +28,7 @@ TEST(EitherTest, CopyOperations) {
     fpp::Either<int, std::string> copy(original);
     
     EXPECT_TRUE(copy.is_left());
-    EXPECT_EQ(copy.left_value_or_exception(), 42);
+    EXPECT_EQ(copy.left_value(), 42);
 }
 
 TEST(EitherTest, MoveOperations) {
@@ -36,28 +36,28 @@ TEST(EitherTest, MoveOperations) {
     fpp::Either<std::string, int> moved(std::move(original));
     
     EXPECT_TRUE(moved.is_left());
-    EXPECT_EQ(moved.left_value_or_exception(), "test");
+    EXPECT_EQ(moved.left_value(), "test");
     EXPECT_TRUE(original.is_left());
 }
 
 TEST(EitherTest, FactoryMethods) {
     auto left = fpp::Either<int, std::string>::from_left(42);
     EXPECT_TRUE(left.is_left());
-    EXPECT_EQ(left.left_value_or_exception(), 42);
+    EXPECT_EQ(left.left_value(), 42);
 
     auto right = fpp::Either<int, std::string>::from_right("error");
     EXPECT_TRUE(right.is_right());
-    EXPECT_EQ(right.right_value_or_exception(), "error");
+    EXPECT_EQ(right.right_value(), "error");
 }
 
 TEST(EitherTest, ValueAccess) {
     fpp::Either<int, std::string> left = fpp::Either<int, std::string>::from_left(42);
-    EXPECT_EQ(left.left_value().value_or_exception(), 42);
-    EXPECT_FALSE(left.right_value().has_value());
+    EXPECT_EQ(left.left_opt_value().value(), 42);
+    EXPECT_FALSE(left.right_opt_value().has_value());
 
     fpp::Either<int, std::string> right = fpp::Either<int, std::string>::from_right("error");
-    EXPECT_EQ(right.right_value().value_or_exception(), "error");
-    EXPECT_FALSE(right.left_value().has_value());
+    EXPECT_EQ(right.right_opt_value().value(), "error");
+    EXPECT_FALSE(right.left_opt_value().has_value());
 }
 
 TEST(EitherTest, ValueOr) {
@@ -72,12 +72,12 @@ TEST(EitherTest, ValueOr) {
 
 TEST(EitherTest, ValueOrException) {
     fpp::Either<int, std::string> left = fpp::Either<int, std::string>::from_left(42);
-    EXPECT_EQ(left.left_value_or_exception(), 42);
-    EXPECT_THROW(left.right_value_or_exception(), std::runtime_error);
+    EXPECT_EQ(left.left_value(), 42);
+    EXPECT_THROW(left.right_value(), std::runtime_error);
 
     fpp::Either<int, std::string> right = fpp::Either<int, std::string>::from_right("error");
-    EXPECT_EQ(right.right_value_or_exception(), "error");
-    EXPECT_THROW(right.left_value_or_exception(), std::runtime_error);
+    EXPECT_EQ(right.right_value(), "error");
+    EXPECT_THROW(right.left_value(), std::runtime_error);
 }
 
 TEST(EitherTest, Swap) {
@@ -88,8 +88,8 @@ TEST(EitherTest, Swap) {
     
     EXPECT_TRUE(a.is_right());
     EXPECT_TRUE(b.is_left());
-    EXPECT_EQ(a.right_value_or_exception(), "error");
-    EXPECT_EQ(b.left_value_or_exception(), 42);
+    EXPECT_EQ(a.right_value(), "error");
+    EXPECT_EQ(b.left_value(), 42);
 }
 
 TEST(EitherTest, TransposeTypes) {
@@ -97,35 +97,35 @@ TEST(EitherTest, TransposeTypes) {
     auto transposed_left = left.transpose_types();
     
     EXPECT_TRUE(transposed_left.is_right());
-    EXPECT_EQ(transposed_left.right_value_or_exception(), 42);
+    EXPECT_EQ(transposed_left.right_value(), 42);
 
     fpp::Either<int, std::string> right = fpp::Either<int, std::string>::from_right("error");
     auto transposed_right = right.transpose_types();
     
     EXPECT_TRUE(transposed_right.is_left());
-    EXPECT_EQ(transposed_right.left_value_or_exception(), "error");
+    EXPECT_EQ(transposed_right.left_value(), "error");
 }
 
 TEST(EitherTest, MapLeft) {
     fpp::Either<int, std::string> left = fpp::Either<int, std::string>::from_left(42);
     auto mapped = left.fmap_left([](int x) { return x * 2; });
     EXPECT_TRUE(mapped.is_left());
-    EXPECT_EQ(mapped.left_value_or_exception(), 84);
+    EXPECT_EQ(mapped.left_value(), 84);
 
     fpp::Either<int, std::string> right = fpp::Either<int, std::string>::from_right("error");
     auto unchanged = right.fmap_left([](int x) { return x * 2; });
     EXPECT_TRUE(unchanged.is_right());
-    EXPECT_EQ(unchanged.right_value_or_exception(), "error");
+    EXPECT_EQ(unchanged.right_value(), "error");
 }
 
 TEST(EitherTest, MapRight) {
     fpp::Either<std::string, int> left = fpp::Either<std::string, int>::from_left("error");
     auto unchanged = left.fmap_right([](int x) { return x * 2; });
     EXPECT_TRUE(unchanged.is_left());
-    EXPECT_EQ(unchanged.left_value_or_exception(), "error");
+    EXPECT_EQ(unchanged.left_value(), "error");
 
     fpp::Either<std::string, int> right = fpp::Either<std::string, int>::from_right(42);
     auto mapped = right.fmap_right([](int x) { return x * 2; });
     EXPECT_TRUE(mapped.is_right());
-    EXPECT_EQ(mapped.right_value_or_exception(), 84);
+    EXPECT_EQ(mapped.right_value(), 84);
 }
