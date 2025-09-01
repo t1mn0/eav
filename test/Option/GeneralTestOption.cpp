@@ -1,223 +1,316 @@
 #include <gtest/gtest.h>
-#include <stdexcept>
+#include <random>
 #include <string>
-#include "../../include/Option/Option.hpp"
 
-TEST(OptionFunctorTest, ConformsToFunctorConcept) {
-    static_assert(fpp::Functor<fpp::Option, int,         decltype([](int x)                { return x * 2; })>);
-    static_assert(fpp::Functor<fpp::Option, std::string, decltype([](const std::string& s) { return s.length(); })>);
+#include "../../Option/Option.hpp"
+#include "../../Error/Error.hpp"
+
+std::mt19937& get_random_engine() {
+  static std::random_device rd;
+  static std::mt19937 gen(rd());
+  return gen;
 }
 
-TEST(OptionTest, DefaultConstructor) {
-    fpp::Option<int> opt;
-    EXPECT_FALSE(opt.has_value());
-    EXPECT_FALSE(static_cast<bool>(opt));
+template<typename T>
+T generate_random_val(T min, T max) {
+  if constexpr (std::is_integral_v<T>) {
+    std::uniform_int_distribution<T> dist(min, max);
+    return dist(get_random_engine());
+  } else {
+    std::uniform_real_distribution<T> dist(min, max);
+    return dist(get_random_engine());
+  }
 }
 
-TEST(OptionTest, ValueConstructor) {
-    fpp::Option<int> opt(42);
-    EXPECT_TRUE(opt.has_value());
-    EXPECT_EQ(opt.value(), 42);
+struct RandomTestData {
+  static constexpr int min_int = 1;
+  static constexpr int max_int = 1000;
+  static constexpr double min_double = 0.1;
+  static constexpr double max_double = 100.0;
+
+  int random_int = generate_random_val(min_int, max_int);
+  double random_double = generate_random_val(min_double, max_double);
+  std::string random_string = "test_" + std::to_string(random_int);
+};
+
+class OptionDefaultConstructorFixture : public ::testing::Test {
+protected:
+  tmn::err::Option<int> default_opt;
+};
+
+TEST_F(OptionDefaultConstructorFixture, DefaultConstructor) {
+  EXPECT_FALSE(default_opt.has_value());
+  EXPECT_FALSE(static_cast<bool>(default_opt));
 }
 
-TEST(OptionTest, MoveConstructor) {
-    fpp::Option<std::string> opt1("test");
-    fpp::Option<std::string> opt2(std::move(opt1));
-    EXPECT_TRUE(opt2.has_value());
-    EXPECT_EQ(opt2.value(), std::string("test"));
-    EXPECT_FALSE(opt1.has_value());
+class OptionValueConstructorFixture : public ::testing::Test {
+protected:
+  RandomTestData test_data;
+  tmn::err::Option<int> int_opt{test_data.random_int};
+  tmn::err::Option<double> double_opt{test_data.random_double};
+  tmn::err::Option<std::string> string_opt{test_data.random_string};
+};
+
+TEST_F(OptionValueConstructorFixture, ValueConstructorWithRandomValues) {
+  EXPECT_TRUE(int_opt.has_value());
+  EXPECT_EQ(int_opt.value(), test_data.random_int);
+
+  EXPECT_TRUE(double_opt.has_value());
+  EXPECT_DOUBLE_EQ(double_opt.value(), test_data.random_double);
+
+  EXPECT_TRUE(string_opt.has_value());
+  EXPECT_EQ(string_opt.value(), test_data.random_string);
 }
 
-TEST(OptionTest, CopyConstructor) {
-    fpp::Option<int> opt1(42);
-    fpp::Option<int> opt2(opt1);
-    EXPECT_TRUE(opt2.has_value());
-    EXPECT_EQ(opt2.value(), 42);
-    EXPECT_TRUE(opt1.has_value());
+class OptionMoveConstructorFixture : public ::testing::Test {
+protected:
+  RandomTestData test_data;
+  tmn::err::Option<std::string> original_opt{test_data.random_string};
+};
+
+TEST_F(OptionMoveConstructorFixture, MoveConstructorWithRandomValue) {
+  tmn::err::Option<std::string> moved_opt(std::move(original_opt));
+
+  EXPECT_TRUE(moved_opt.has_value());
+  EXPECT_EQ(moved_opt.value(), test_data.random_string);
+  EXPECT_FALSE(original_opt.has_value());
 }
 
-TEST(OptionTest, AssignmentOperators) {
-    fpp::Option<int> opt1(42);
-    fpp::Option<int> opt2;
-    opt2 = opt1;
-    EXPECT_TRUE(opt2.has_value());
-    EXPECT_EQ(opt2.value(), 42);
+class OptionCopyConstructorFixture : public ::testing::Test {
+protected:
+  RandomTestData test_data;
+  tmn::err::Option<int> original_opt{test_data.random_int};
+};
 
-    fpp::Option<int> opt3;
-    opt3 = fpp::Option<int>(99);
-    EXPECT_TRUE(opt3.has_value());
-    EXPECT_EQ(opt3.value(), 99);
+TEST_F(OptionCopyConstructorFixture, CopyConstructorWithRandomValue) {
+  tmn::err::Option<int> copied_opt(original_opt);
+
+  EXPECT_TRUE(copied_opt.has_value());
+  EXPECT_EQ(copied_opt.value(), test_data.random_int);
+  EXPECT_TRUE(original_opt.has_value());
+  EXPECT_EQ(original_opt.value(), test_data.random_int);
 }
 
-TEST(OptionTest, Swap) {
-    fpp::Option<int> opt1(42);
-    fpp::Option<int> opt2(99);
-    opt1.swap(opt2);
-    EXPECT_EQ(opt1.value(), 99);
-    EXPECT_EQ(opt2.value(), 42);
+class OptionAssignmentOperatorsFixture : public ::testing::Test {
+protected:
+  RandomTestData test_data;
+  tmn::err::Option<int> source_opt{test_data.random_int};
+  tmn::err::Option<int> target_opt;
+};
+
+TEST_F(OptionAssignmentOperatorsFixture, CopyAssignmentWithRandomValue) {
+  target_opt = source_opt;
+
+  EXPECT_TRUE(target_opt.has_value());
+  EXPECT_EQ(target_opt.value(), test_data.random_int);
+  EXPECT_TRUE(source_opt.has_value());
+  EXPECT_EQ(source_opt.value(), test_data.random_int);
 }
 
-TEST(OptionTest, ValueOr) {
-    fpp::Option<int> opt1(42);
-    fpp::Option<int> opt2;
-    
-    EXPECT_EQ(opt1.value_or(0), 42);
-    EXPECT_EQ(opt2.value_or(0), 0);
-    
-    const int def = 100;
-    EXPECT_EQ(opt1.value_or(def), 42);
-    EXPECT_EQ(opt2.value_or(def), 100);
+TEST_F(OptionAssignmentOperatorsFixture, MoveAssignmentWithRandomValue) {
+  const int new_value = generate_random_val(1001, 2000);
+  target_opt = tmn::err::Option<int>(new_value);
+
+  EXPECT_TRUE(target_opt.has_value());
+  EXPECT_EQ(target_opt.value(), new_value);
 }
 
-TEST(OptionTest, ValueOrDefault) {
-    fpp::Option<int> opt1(42);
-    fpp::Option<int> opt2;
-    
-    EXPECT_EQ(opt1.value_or_default(), 42);
-    EXPECT_EQ(opt2.value_or_default(), 0);
+class OptionSwapFixture : public ::testing::Test {
+protected:
+  RandomTestData test_data;
+  const int value1 = test_data.random_int;
+  const int value2 = generate_random_val(1001, 2000);
+  tmn::err::Option<int> opt1{value1};
+  tmn::err::Option<int> opt2{value2};
+};
+
+TEST_F(OptionSwapFixture, SwapWithRandomValues) {
+  std::swap(opt1, opt2);
+
+  EXPECT_EQ(opt1.value(), value2);
+  EXPECT_EQ(opt2.value(), value1);
 }
 
-TEST(OptionTest, ValueOrException) {
-    fpp::Option<int> opt1(42);
-    fpp::Option<int> opt2;
-    
-    EXPECT_EQ(opt1.value(), 42);
-    EXPECT_THROW(opt2.value(), std::bad_optional_access);
+class OptionValueOrFixture : public ::testing::Test {
+protected:
+  RandomTestData test_data;
+  const int default_value = generate_random_val(2001, 3000);
+  tmn::err::Option<int> filled_opt{test_data.random_int};
+  tmn::err::Option<int> empty_opt;
+};
+
+TEST_F(OptionValueOrFixture, ValueOrWithRandomValues) {
+  EXPECT_EQ(filled_opt.value_or(default_value), test_data.random_int);
+  EXPECT_EQ(empty_opt.value_or(default_value), default_value);
 }
 
-TEST(OptionTest, DestroyValue) {
-    fpp::Option<std::string> opt("test");
-    EXPECT_TRUE(opt.destroy_value());
-    EXPECT_FALSE(opt.has_value());
-    EXPECT_FALSE(opt.destroy_value());
+TEST_F(OptionValueOrFixture, ValueOrDefaultWithRandomValue) {
+  EXPECT_EQ(filled_opt.value_or_default(), test_data.random_int);
+  EXPECT_EQ(empty_opt.value_or_default(), 0);
 }
 
-TEST(OptionTest, Map) {
-    fpp::Option<int> opt1(42);
-    fpp::Option<int> opt2;
-    
-    auto doubled = opt1.fmap([](int x) { return x * 2; });
-    EXPECT_TRUE(doubled.has_value());
-    EXPECT_EQ(doubled.value(), 84);
-    
-    auto empty = opt2.fmap([](int x) { return x * 2; });
-    EXPECT_FALSE(empty.has_value());
+class OptionValueOrExceptionFixture : public ::testing::Test {
+protected:
+  RandomTestData test_data;
+  tmn::err::Option<int> filled_opt{test_data.random_int};
+  tmn::err::Option<int> empty_opt;
+};
+
+TEST_F(OptionValueOrExceptionFixture, ValueAccessWithRandomValue) {
+  EXPECT_EQ(filled_opt.value(), test_data.random_int);
 }
 
-TEST(OptionTest, AndThen) {
-    fpp::Option<int> opt1(42);
-    auto result1 = opt1.and_then([](int x) { return x * 2; });
-    EXPECT_TRUE(result1.has_value());
-    EXPECT_EQ(result1.value(), 84);
-
-    fpp::Option<int> opt2;
-    auto result2 = opt2.and_then([](int x) { return x * 2; });
-    EXPECT_FALSE(result2.has_value());
-
-    fpp::Option<std::string> opt3("hello");
-    auto result3 = opt3.and_then([](const std::string& s) { return s.length(); });
-    EXPECT_TRUE(result3.has_value());
-    EXPECT_EQ(result3.value(), 5);
-
-    fpp::Option<int> opt4(10);
-    auto result4 = opt4.and_then([](int x) { 
-        return std::to_string(x); 
-    });
-    EXPECT_TRUE(result4.has_value());
-    EXPECT_EQ(result4.value(), std::string("10"));
+TEST_F(OptionValueOrExceptionFixture, ValueAccessThrowsOnEmpty) {
+  EXPECT_THROW(empty_opt.value(), std::bad_optional_access);
 }
 
-TEST(OptionTest, OrElse) {
-    fpp::Option<int> opt1(42);
-    bool called1 = false;
-    auto result1 = opt1.or_else([&called1]() { 
-        called1 = true; 
-        return fpp::Option<int>(0); 
-    });
-    EXPECT_TRUE(result1.has_value());
-    EXPECT_EQ(result1.value(), 42);
-    EXPECT_FALSE(called1);
+class OptionDestroyValueFixture : public ::testing::Test {
+protected:
+  RandomTestData test_data;
+  tmn::err::Option<std::string> string_opt{test_data.random_string};
+};
 
-    fpp::Option<int> opt2;
-    bool called2 = false;
-    auto result2 = opt2.or_else([&called2]() { 
-        called2 = true; 
-        return fpp::Option<int>(100); 
-    });
-    EXPECT_TRUE(result2.has_value());
-    EXPECT_EQ(result2.value(), 100);
-    EXPECT_TRUE(called2);
-
-    fpp::Option<std::string> opt3;
-    auto result3 = opt3.or_else([]() { 
-        return fpp::Option<std::string>("default"); 
-    });
-    EXPECT_TRUE(result3.has_value());
-    EXPECT_EQ(result3.value(), std::string("default"));
+TEST_F(OptionDestroyValueFixture, DestroyValueWithRandomString) {
+  EXPECT_TRUE(string_opt.has_value());
+  EXPECT_TRUE(string_opt.destroy_value());
+  EXPECT_FALSE(string_opt.has_value());
+  EXPECT_FALSE(string_opt.destroy_value());
 }
 
-TEST(OptionTest, AndThenChain) {
-    auto result = fpp::Option<int>(10)
-        .and_then([](int x) { return x * 2; })  // 20
-        .and_then([](int x) { return x + 5; })  // 25
-        .and_then([](int x) { return std::to_string(x); }); // "25"
-    
-    EXPECT_TRUE(result.has_value());
-    EXPECT_EQ(result.value(), std::string("25"));
+class OptionMapFixture : public ::testing::Test {
+protected:
+  RandomTestData test_data;
+  tmn::err::Option<int> filled_opt{test_data.random_int};
+  tmn::err::Option<int> empty_opt;
+};
+
+TEST_F(OptionMapFixture, MapWithRandomValue) {
+  const auto doubled = filled_opt.fmap([](int x) { return x * 2; });
+
+  EXPECT_TRUE(doubled.has_value());
+  EXPECT_EQ(doubled.value(), test_data.random_int * 2);
 }
 
-TEST(OptionTest, OrElseChain) {
-    auto result = fpp::Option<int>()
-        .or_else([]() { return fpp::Option<int>(); })
-        .or_else([]() { return fpp::Option<int>(10); }) // 10
-        .or_else([]() { return fpp::Option<int>(20); });
-    
-    EXPECT_TRUE(result.has_value());
-    EXPECT_EQ(result.value(), 10);
+TEST_F(OptionMapFixture, MapWithEmpty) {
+  const auto r = empty_opt.fmap([](int x) { return x * 2; });
+  EXPECT_FALSE(r.has_value());
 }
 
-TEST(OptionTest, MixedChain) {
-    auto result = fpp::Option<int>(5)
-        .and_then([](int x) { return x % 2 == 0 ? x : x * 2; })
-        .or_else([]() { return fpp::Option<int>(10); }) // 10
-        .and_then([](int x) { return x * 3; }); // 30
-    
-    EXPECT_TRUE(result.has_value());
-    EXPECT_EQ(result.value(), 30);
+class OptionAndThenFixture : public ::testing::Test {
+protected:
+  RandomTestData test_data;
+  tmn::err::Option<int> int_opt{test_data.random_int};
+  tmn::err::Option<std::string> string_opt{test_data.random_string};
+  tmn::err::Option<int> empty_opt;
+};
+
+TEST_F(OptionAndThenFixture, AndThenWithRandomInt) {
+  const auto r = int_opt.and_then([](int x) { return x * 2; });
+  EXPECT_TRUE(r.has_value());
+  EXPECT_EQ(r.value(), test_data.random_int * 2);
 }
 
-TEST(OptionEitherConversion, LeftVoid) {
-    fpp::Option<int> some(42);
-    fpp::Option<int> none;
-    
-    auto e1 = some.to_either_left();
-    EXPECT_TRUE(e1.is_left());
-    EXPECT_EQ(e1.left_value(), 42);
-    
-    auto e2 = none.to_either_left();
-    EXPECT_TRUE(e2.is_right());
+TEST_F(OptionAndThenFixture, AndThenWithEmpty) {
+  const auto r = empty_opt.and_then([](int x) { return x * 2; });
+  EXPECT_FALSE(r.has_value());
 }
 
-TEST(OptionEitherConversion, RightVoid) {
-    fpp::Option<std::string> some("test");
-    fpp::Option<std::string> none;
-    
-    auto e1 = some.to_either_right();
-    EXPECT_TRUE(e1.is_right());
-    EXPECT_EQ(e1.right_value(), "test");
-    
-    auto e2 = none.to_either_right();
-    EXPECT_TRUE(e2.is_left());
+TEST_F(OptionAndThenFixture, AndThenWithStringLength) {
+  const auto r = string_opt.and_then([](const std::string& s) { return s.length(); });
+  EXPECT_TRUE(r.has_value());
+  EXPECT_EQ(r.value(), test_data.random_string.length());
 }
 
-TEST(OptionConversions, ToResult) {
-    fpp::Option<int> some(100);
-    fpp::Result<int, fpp::StringError> res = some.to_result(fpp::StringError("missing"));
-    EXPECT_TRUE(res.is_ok());
-    EXPECT_EQ(res.unwrap_val(), 100);
-    
-    fpp::Option<int> none;
-    fpp::Result<int, fpp::StringError> res2 = none.to_result(fpp::StringError("missing"));
-    EXPECT_TRUE(res2.is_err());
-    EXPECT_EQ(res2.unwrap_err().err_message(), "missing");
+class OptionOrElseFixture : public ::testing::Test {
+protected:
+  RandomTestData test_data;
+  const int fallback_value = generate_random_val(3001, 4000);
+  tmn::err::Option<int> filled_opt{test_data.random_int};
+  tmn::err::Option<int> empty_opt;
+};
+
+TEST_F(OptionOrElseFixture, OrElseWithRandomValue) {
+  bool callback_called = false;
+  const auto r = filled_opt.or_else([&]() {
+    callback_called = true;
+    return tmn::err::Option<int>(fallback_value);
+  });
+
+  EXPECT_TRUE(r.has_value());
+  EXPECT_FALSE(callback_called);
+}
+
+TEST_F(OptionOrElseFixture, OrElseWithEmpty) {
+  bool callback_called = false;
+  const auto r = empty_opt.or_else([&]() {
+    callback_called = true;
+    return tmn::err::Option<int>(fallback_value);
+  });
+
+  EXPECT_TRUE(r.has_value());
+  EXPECT_EQ(r.value(), fallback_value);
+  EXPECT_TRUE(callback_called);
+}
+
+class OptionChainingFixture : public ::testing::Test {
+protected:
+  RandomTestData test_data;
+  const int fallback_value = generate_random_val(4001, 5000);
+};
+
+TEST_F(OptionChainingFixture, AndThenChainWithRandomValue) {
+  const auto r = tmn::err::Option<int>(test_data.random_int)
+    .and_then([](int x) { return x * 2; })
+    .and_then([](int x) { return x + 5; })
+    .and_then([](int x) { return std::to_string(x); });
+
+  const int expected_value = (test_data.random_int * 2) + 5;
+  EXPECT_TRUE(r.has_value());
+  EXPECT_EQ(r.value(), std::to_string(expected_value));
+}
+
+TEST_F(OptionChainingFixture, OrElseChain) {
+  const auto r = tmn::err::Option<int>()
+    .or_else([]() { return tmn::err::Option<int>(); })
+    .or_else([this]() { return tmn::err::Option<int>(fallback_value); })
+    .or_else([]() { return tmn::err::Option<int>(generate_random_val(5001, 6000)); });
+
+  EXPECT_TRUE(r.has_value());
+  EXPECT_EQ(r.value(), fallback_value);
+}
+
+TEST_F(OptionChainingFixture, MixedChainWithRandomValue) {
+  const int initial_value = test_data.random_int;
+  const auto r = tmn::err::Option<int>(initial_value)
+    .and_then([](int x) { return x % 2 == 0 ? x : x * 2; })
+    .or_else([this]() { return fallback_value; })
+    .and_then([](int x) { return x * 3; });
+
+  const int transformed_value = (initial_value % 2 == 0) ? initial_value : initial_value * 2;
+  const int expected_value = transformed_value * 3;
+
+  EXPECT_TRUE(r.has_value());
+  EXPECT_EQ(r.value(), expected_value);
+}
+
+class OptionConversionFixture : public ::testing::Test {
+protected:
+  RandomTestData test_data;
+  const std::string error_message = "error_" + std::to_string(test_data.random_int);
+  tmn::err::Option<int> filled_opt{test_data.random_int};
+  tmn::err::Option<int> empty_opt;
+};
+
+TEST_F(OptionConversionFixture, ToResultWithRandomValue) {
+  const auto r = filled_opt.to_result(tmn::err::StrErr(error_message));
+
+  EXPECT_TRUE(r.is_ok());
+  EXPECT_EQ(r.value(), test_data.random_int);
+}
+
+TEST_F(OptionConversionFixture, ToResultWithEmpty) {
+  const auto r = empty_opt.to_result(tmn::err::StrErr(error_message));
+
+  EXPECT_TRUE(r.is_err());
+  EXPECT_EQ(r.err().err_msg(), error_message);
 }

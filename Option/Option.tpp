@@ -174,7 +174,7 @@ auto Option<T>::and_then(Func&& fn) const
   noexcept(std::is_nothrow_constructible_v<Option<std::invoke_result_t<Func, T>>> && std::is_nothrow_invocable_v<Func, T>)
   -> Option<std::invoke_result_t<Func, T>>
 {
-  if (!_is_initialized) return std::invoke_result_t<Func, T>{};
+  if (!_is_initialized) return Option<std::invoke_result_t<Func, T>>{};
   return Option<std::invoke_result_t<Func, T>>(std::forward<Func>(fn)(*reinterpret_cast<const T*>(_value)));
 }
 
@@ -182,11 +182,11 @@ auto Option<T>::and_then(Func&& fn) const
 template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
 template <typename Func, typename... Args> requires std::invocable<Func, Args...>
 auto Option<T>::or_else(Func&& fn, Args&&... args) const
-  noexcept(std::is_nothrow_constructible_v<Option<std::invoke_result_t<Func, T>>> && std::is_nothrow_invocable_v<Func, T>)
-  -> Option<std::invoke_result_t<Func, T>>
+  noexcept(std::is_nothrow_constructible_v<Option<std::invoke_result_t<Func, Args...>>> && std::is_nothrow_invocable_v<Func, Args...>)
+  -> Option<std::invoke_result_t<Func, Args...>>
 {
-  if (_is_initialized) return std::invoke_result_t<Func, T>{};
-  return Option<std::invoke_result_t<Func, T>>(std::forward<Func>(fn)(std::forward<Args>(args)...));
+  if (_is_initialized) return Option<std::invoke_result_t<Func, Args...>>{};
+  return Option<std::invoke_result_t<Func, Args...>>(std::forward<Func>(fn)(std::forward<Args>(args)...));
 }
 
 // Monoid interface:
@@ -260,8 +260,10 @@ static_assert(Monad<Option, int, std::function<Option<double>(int)>>, "Option sh
 namespace std {
 
 template <typename T> requires (!std::is_void_v<T>)
-void swap(tmn::err::Option<T>& a, tmn::err::Option<T>& b) noexcept(noexcept(a.swap(b))) {
-  a.swap(b);
+void swap(tmn::err::Option<T>& a, tmn::err::Option<T>& b)
+  noexcept(noexcept(swap(a, b)))
+{
+  swap(a, b);
 }
 
 } // namespace 'std';

@@ -217,7 +217,7 @@ const T& Result<T,E>::value_or(const T& val) const
 template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
 T& Result<T, E>::value() {
   if (is_err()) {
-    throw std::runtime_error(err_val.err_message());
+    throw std::runtime_error(err_val.err_msg());
   }
   else if (state == State::Uninitialized) {
     throw std::runtime_error("Accessing moved-from Result");
@@ -229,7 +229,7 @@ T& Result<T, E>::value() {
 template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
 const T& Result<T, E>::value() const {
   if (is_err()) {
-    throw std::runtime_error(err_val.err_message());
+    throw std::runtime_error(err_val.err_msg());
   }
   return ok_val;
 }
@@ -302,7 +302,7 @@ auto Result<T, E>::and_then(Func&& fn) const
     return Result<std::invoke_result_t<Func, T>, E>::Ok(fn(ok_val));
   }
   else {
-    return Result<std::invoke_result_t<Func, T>, E>::err_val);
+    return Result<std::invoke_result_t<Func, T>, E>::err_val;
   }
 }
 

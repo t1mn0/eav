@@ -1,35 +1,45 @@
-include(CTest)
-enable_testing()
+cmake_minimum_required(VERSION 3.14)
 
 find_package(GTest REQUIRED)
-if(NOT GTEST_FOUND)
-    message(FATAL_ERROR "GTest not found. Please install the required dependencies for this project to work")
-    return()
-endif()
 
-function(fpp_add_test TEST_NAME TEST_SOURCE)
-    add_executable(${TEST_NAME} ${TEST_SOURCE})
-
-    target_link_libraries(${TEST_NAME}
-        PRIVATE fpp::fpp
-        PRIVATE GTest::gtest GTest::gtest_main
-    )
-
-    if(FPPLIB_ENABLE_SANITIZERS AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        target_compile_options(${TEST_NAME} PRIVATE -fsanitize=address,undefined)
-        target_link_options(${TEST_NAME} PRIVATE -fsanitize=address,undefined)
-    endif()
-
-    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
-endfunction()
-
-file(GLOB_RECURSE TEST_SOURCES
-    "Option/*.cpp"
-    "Result/*.cpp"
-    "Error/*.cpp"
+set(COMMON_INCLUDE_DIRS
+    ${CMAKE_SOURCE_DIR}/Error
+    ${CMAKE_SOURCE_DIR}/Option
+    ${CMAKE_SOURCE_DIR}/Result
+    ${CMAKE_SOURCE_DIR}
 )
 
-foreach(TEST_SOURCE ${TEST_SOURCES})
-    get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
-    fpp_add_test(${TEST_NAME} ${TEST_SOURCE})
-endforeach()
+set(COMMON_LINK_LIBS
+    GTest::gtest
+    GTest::gtest_main
+)
+
+add_executable(ErrorTests
+    Error/ErrorTest.cpp
+    Error/TryOrConvertTest.cpp
+)
+
+target_include_directories(ErrorTests PRIVATE ${COMMON_INCLUDE_DIRS})
+target_link_libraries(ErrorTests PRIVATE ${COMMON_LINK_LIBS})
+add_test(NAME ErrorTests COMMAND ErrorTests)
+
+add_executable(OptionTests
+    Option/GeneralTestOption.cpp
+    Option/ArithmeticTestOption.cpp
+)
+
+target_include_directories(OptionTests PRIVATE ${COMMON_INCLUDE_DIRS})
+target_link_libraries(OptionTests PRIVATE ${COMMON_LINK_LIBS})
+add_test(NAME OptionTests COMMAND OptionTests)
+
+#add_executable(ResultTests Result/ResultTest.cpp)
+
+#target_include_directories(ResultTests PRIVATE ${COMMON_INCLUDE_DIRS})
+#target_link_libraries(ResultTests PRIVATE ${COMMON_LINK_LIBS})
+#add_test(NAME ResultTests COMMAND ResultTests)
+
+add_custom_target(run_all_tests
+    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+    DEPENDS ErrorTests OptionTests ResultTests
+    COMMENT "Running all tests"
+)

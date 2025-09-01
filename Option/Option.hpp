@@ -77,8 +77,8 @@ public: //* methods :
 
   template <typename Func, typename... Args> requires std::invocable<Func, Args...>
   auto or_else(Func&& fn, Args&&... args) const
-    noexcept(std::is_nothrow_constructible_v<Option<std::invoke_result_t<Func, T>>> && std::is_nothrow_invocable_v<Func, T>)
-     -> Option<std::invoke_result_t<Func, T>>;
+    noexcept(std::is_nothrow_constructible_v<Option<std::invoke_result_t<Func, Args...>>> && std::is_nothrow_invocable_v<Func, Args...>)
+     -> Option<std::invoke_result_t<Func, Args...>>;
 
   // Coproduction variants (or sum) on the Option<T> monad:
   template <typename U> requires Addable<T, U>
@@ -97,8 +97,9 @@ private: //* methods:
   void swap(Option& oth) noexcept(std::is_nothrow_swappable_v<T> && std::is_nothrow_move_constructible_v<T>);
 
 private: //* friends:
-  template<typename U>
-  friend void swap(Option<U>& first, Option<U>& second);
+  friend void swap(Option<T>& first, Option<T>& second) noexcept(noexcept(first.swap(second))) {
+    first.swap(second);
+  }
 
 }; // class 'Option';
 
