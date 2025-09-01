@@ -93,6 +93,8 @@ build/test/
 */build/
 **/build*/
 build*/
+/.cache/
+.cache/*
 
 ### CMake Patch ###
 CMakeUserPresets.json
