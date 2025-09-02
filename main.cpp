@@ -1,12 +1,20 @@
-#include "Option/Option.hpp"
-#include "Error/Error.hpp"
 #include <iostream>
+#include <string>
 
-using namespace tmn::err;
+#include "Option/Option.hpp"
 
-int main(){
-  Result<int, StrErr> r = Result<int, StrErr>::Err("strochka");
-  std::string str = "string";
-  Option<std::string> opt = Some(str);
-  std::cout << r.is_err() << std::endl;
+tmn::err::Option<std::string> find_user_name(int user_id) {
+  if (user_id == 1) return std::string("Alice");
+  if (user_id == 2) return std::string("Bob");
+  return tmn::err::None<std::string>();
+}
+
+int main() {
+  auto name = find_user_name(3)
+    .fmap([](auto s) { return "Hello, " + s + "!"; })
+    .or_else([&]() {
+      return std::string("User not found");
+    });
+
+  std::cout << name.value() << std::endl;
 }
