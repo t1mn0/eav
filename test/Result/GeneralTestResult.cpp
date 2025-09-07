@@ -42,13 +42,13 @@ protected:
 TEST_F(ResultOkErrConstructorFixture, OkConstructorWithRandomValue) {
   ASSERT_TRUE(ok_result.is_ok());
   EXPECT_FALSE(ok_result.is_err());
-  EXPECT_EQ(ok_result.value(), test_data.random_int_1);
+  EXPECT_EQ(ok_result.unwrap_value(), test_data.random_int_1);
 }
 
 TEST_F(ResultOkErrConstructorFixture, ErrConstructorWithRandomValue) {
   ASSERT_TRUE(err_result.is_err());
   EXPECT_FALSE(err_result.is_ok());
-  EXPECT_EQ(err_result.err(), test_data.random_string);
+  EXPECT_EQ(err_result.unwrap_err(), test_data.random_string);
 }
 
 class ResultCopyConstructorFixture : public ::testing::Test {
@@ -65,18 +65,18 @@ TEST_F(ResultCopyConstructorFixture, CopyOkResult) {
   tmn::err::Result<int, tmn::err::StrErr> copied = original_ok;
 
   ASSERT_TRUE(copied.is_ok());
-  EXPECT_EQ(copied.value(), test_data.random_int_1);
+  EXPECT_EQ(copied.unwrap_value(), test_data.random_int_1);
   ASSERT_TRUE(original_ok.is_ok());
-  EXPECT_EQ(original_ok.value(), test_data.random_int_1);
+  EXPECT_EQ(original_ok.unwrap_value(), test_data.random_int_1);
 }
 
 TEST_F(ResultCopyConstructorFixture, CopyErrResult) {
   tmn::err::Result<int, tmn::err::StrErr> copied = original_err;
 
   ASSERT_TRUE(copied.is_err());
-  EXPECT_EQ(copied.err(), test_data.random_string);
+  EXPECT_EQ(copied.unwrap_err(), test_data.random_string);
   ASSERT_TRUE(original_err.is_err());
-  EXPECT_EQ(original_err.err(), test_data.random_string);
+  EXPECT_EQ(original_err.unwrap_err(), test_data.random_string);
 }
 
 class ResultMoveConstructorFixture : public ::testing::Test {
@@ -91,7 +91,7 @@ TEST_F(ResultMoveConstructorFixture, MoveOkResult) {
   tmn::err::Result<std::string, tmn::test_utils::TestErr> moved = std::move(original);
 
   ASSERT_TRUE(moved.is_ok());
-  EXPECT_EQ(moved.value(), test_data.random_string);
+  EXPECT_EQ(moved.unwrap_value(), test_data.random_string);
 }
 
 TEST_F(ResultMoveConstructorFixture, MoveErrResult) {
@@ -101,7 +101,7 @@ TEST_F(ResultMoveConstructorFixture, MoveErrResult) {
   tmn::err::Result<int, tmn::err::StrErr> moved = std::move(original);
 
   ASSERT_TRUE(moved.is_err());
-  EXPECT_EQ(moved.err(), test_data.random_string);
+  EXPECT_EQ(moved.unwrap_err(), test_data.random_string);
 }
 
 class ResultAssignmentFixture : public ::testing::Test {
@@ -121,9 +121,9 @@ TEST_F(ResultAssignmentFixture, CopyAssignmentOk) {
   target = source;
 
   ASSERT_TRUE(target.is_ok());
-  EXPECT_EQ(target.value(), test_data.random_int_1);
+  EXPECT_EQ(target.unwrap_value(), test_data.random_int_1);
   ASSERT_TRUE(source.is_ok());
-  EXPECT_EQ(source.value(), test_data.random_int_1);
+  EXPECT_EQ(source.unwrap_value(), test_data.random_int_1);
 }
 
 TEST_F(ResultAssignmentFixture, MoveAssignmentErr) {
@@ -133,7 +133,7 @@ TEST_F(ResultAssignmentFixture, MoveAssignmentErr) {
   target = std::move(source);
 
   ASSERT_TRUE(target.is_err());
-  EXPECT_EQ(target.err(), test_data.random_string);
+  EXPECT_EQ(target.unwrap_err(), test_data.random_string);
 }
 
 class ResultBoolConversionFixture : public ::testing::Test {
@@ -190,22 +190,22 @@ protected:
 };
 
 TEST_F(ResultValueAccessFixture, ValueAccessOk) {
-  EXPECT_EQ(ok_result.value(), test_data.random_int_1);
-  EXPECT_EQ(ok_result.value_or_default(), test_data.random_int_1);
+  EXPECT_EQ(ok_result.unwrap_value(), test_data.random_int_1);
+  EXPECT_EQ(ok_result.unwrap_value_or_default(), test_data.random_int_1);
 }
 
 TEST_F(ResultValueAccessFixture, ValueAccessErrThrows) {
-  EXPECT_THROW(err_result.value(), std::runtime_error);
+  EXPECT_THROW(err_result.unwrap_value(), std::runtime_error);
 }
 
 TEST_F(ResultValueAccessFixture, ValueOrWithOk) {
   const int default_val = tmn::test_utils::generate_random_val(1001, 2000);
-  EXPECT_EQ(ok_result.value_or(default_val), test_data.random_int_1);
+  EXPECT_EQ(ok_result.unwrap_value_or(default_val), test_data.random_int_1);
 }
 
 TEST_F(ResultValueAccessFixture, ValueOrWithErr) {
   const int default_val = tmn::test_utils::generate_random_val(1001, 2000);
-  EXPECT_EQ(err_result.value_or(default_val), default_val);
+  EXPECT_EQ(err_result.unwrap_value_or(default_val), default_val);
 }
 
 class ResultErrAccessFixture : public ::testing::Test {
@@ -219,20 +219,20 @@ protected:
 };
 
 TEST_F(ResultErrAccessFixture, ErrAccessOkThrows) {
-  EXPECT_THROW(ok_result.err(), std::runtime_error);
+  EXPECT_THROW(ok_result.unwrap_err(), std::runtime_error);
 }
 
 TEST_F(ResultErrAccessFixture, ErrAccessErr) {
-  EXPECT_EQ(err_result.err(), test_data.random_string);
+  EXPECT_EQ(err_result.unwrap_err(), test_data.random_string);
 }
 
 TEST_F(ResultErrAccessFixture, OptionalErrOk) {
-  auto err_opt = ok_result.optional_err();
+  auto err_opt = ok_result.unwrap_err_to_optional();
   EXPECT_FALSE(err_opt.has_value());
 }
 
 TEST_F(ResultErrAccessFixture, OptionalErrErr) {
-  auto err_opt = err_result.optional_err();
+  auto err_opt = err_result.unwrap_err_to_optional();
   ASSERT_TRUE(err_opt.has_value());
   EXPECT_EQ(err_opt.value(), test_data.random_string);
 }
@@ -249,7 +249,7 @@ TEST_F(ResultFmapFixture, FmapOk) {
   auto transformed = ok_result.fmap([](int x) { return x * 2; });
 
   ASSERT_TRUE(transformed.is_ok());
-  EXPECT_EQ(transformed.value(), test_data.random_int_1 * 2);
+  EXPECT_EQ(transformed.unwrap_value(), test_data.random_int_1 * 2);
 }
 
 TEST_F(ResultFmapFixture, FmapErr) {
@@ -259,7 +259,7 @@ TEST_F(ResultFmapFixture, FmapErr) {
   auto transformed = err_result.fmap([](int x) { return x * 2; });
 
   ASSERT_TRUE(transformed.is_err());
-  EXPECT_EQ(transformed.err(), test_data.random_string);
+  EXPECT_EQ(transformed.unwrap_err(), test_data.random_string);
 }
 
 class ResultAndThenFixture : public ::testing::Test {
@@ -276,7 +276,7 @@ TEST_F(ResultAndThenFixture, AndThenOk) {
   });
 
   ASSERT_TRUE(result.is_ok());
-  EXPECT_EQ(result.value(), std::to_string(test_data.random_int_1));
+  EXPECT_EQ(result.unwrap_value(), std::to_string(test_data.random_int_1));
 }
 
 TEST_F(ResultAndThenFixture, AndThenErr) {
@@ -288,7 +288,7 @@ TEST_F(ResultAndThenFixture, AndThenErr) {
   });
 
   ASSERT_TRUE(result.is_err());
-  EXPECT_EQ(result.err(), test_data.random_string);
+  EXPECT_EQ(result.unwrap_err(), test_data.random_string);
 }
 
 class ResultTemplateMethodsFixture : public ::testing::Test {
@@ -300,14 +300,14 @@ TEST_F(ResultTemplateMethodsFixture, OkWithArgs) {
   auto result = tmn::err::Result<std::string, tmn::test_utils::TestErr>::Ok("test", std::size_t{3});
 
   ASSERT_TRUE(result.is_ok());
-  EXPECT_EQ(result.value(), "tes");
+  EXPECT_EQ(result.unwrap_value(), "tes");
 }
 
 TEST_F(ResultTemplateMethodsFixture, ErrWithArgs) {
   auto result = tmn::err::Result<int, tmn::err::StrErr>::Err("error", std::size_t{4});
 
   ASSERT_TRUE(result.is_err());
-  EXPECT_EQ(result.err(), "erro");
+  EXPECT_EQ(result.unwrap_err(), "erro");
 }
 
 class ResultSwapFixture : public ::testing::Test {
@@ -325,8 +325,8 @@ TEST_F(ResultSwapFixture, SwapResults) {
   std::swap(result1, result2);
 
   ASSERT_TRUE(result1.is_err());
-  EXPECT_EQ(result1.err(), test_data.random_string);
+  EXPECT_EQ(result1.unwrap_err(), test_data.random_string);
 
   ASSERT_TRUE(result2.is_ok());
-  EXPECT_EQ(result2.value(), test_data.random_int_1);
+  EXPECT_EQ(result2.unwrap_value(), test_data.random_int_1);
 }

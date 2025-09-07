@@ -16,5 +16,5 @@ int main() {
       return std::string("User not found");
     });
 
-  std::cout << name.value() << std::endl;
+  std::cout << name.value() << std::endl; // User not found;
 }

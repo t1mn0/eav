@@ -59,16 +59,16 @@ public: //* methods:
   bool is_ok() const noexcept;
   bool is_err() const noexcept;
 
-  Option<T> optional_value() const noexcept(std::is_nothrow_copy_constructible_v<T>);
-  T& value_or(T& val) noexcept(std::is_nothrow_copy_constructible_v<T>);
-  const T& value_or(const T& val) const noexcept(std::is_nothrow_copy_constructible_v<T>);
-  T& value();
-  const T& value() const;
-  T value_or_default() const noexcept requires std::default_initializable<T>;
+  Option<T> unwrap_value_to_optional() const noexcept(std::is_nothrow_copy_constructible_v<T>);
+  T& unwrap_value_or(T& val) noexcept(std::is_nothrow_copy_constructible_v<T>);
+  const T& unwrap_value_or(const T& val) const noexcept(std::is_nothrow_copy_constructible_v<T>);
+  T& unwrap_value();
+  const T& unwrap_value() const;
+  T unwrap_value_or_default() const noexcept requires std::default_initializable<T>;
 
-  Option<E> optional_err() const noexcept(std::is_nothrow_copy_constructible_v<E>);
-  E& err();
-  const E& err() const;
+  Option<E> unwrap_err_to_optional() const noexcept(std::is_nothrow_copy_constructible_v<E>);
+  E& unwrap_err();
+  const E& unwrap_err() const;
 
   //*   <--- functional methods (from funcprog)  --->
   // !!! Result object can have one of two values.

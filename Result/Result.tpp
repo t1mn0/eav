@@ -199,25 +199,25 @@ bool Result<T,E>::is_err() const noexcept {
 }
 
 template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
-Option<T> Result<T, E>::optional_value() const noexcept(std::is_nothrow_copy_constructible_v<T>) {
+Option<T> Result<T, E>::unwrap_value_to_optional() const noexcept(std::is_nothrow_copy_constructible_v<T>) {
   if (is_ok()) return Option<T>(ok_val);
   return Option<T>();
 }
 
 template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
-T& Result<T,E>::value_or(T& val) noexcept(std::is_nothrow_copy_constructible_v<T>) {
+T& Result<T,E>::unwrap_value_or(T& val) noexcept(std::is_nothrow_copy_constructible_v<T>) {
   return is_ok() ? ok_val : val;
 }
 
 template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
-const T& Result<T,E>::value_or(const T& val) const
+const T& Result<T,E>::unwrap_value_or(const T& val) const
   noexcept(std::is_nothrow_copy_constructible_v<T>)
 {
   return is_ok() ? ok_val : val;
 }
 
 template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
-T& Result<T, E>::value() {
+T& Result<T, E>::unwrap_value() {
   if (is_err()) {
     throw std::runtime_error(err_val.err_msg());
   }
@@ -229,7 +229,7 @@ T& Result<T, E>::value() {
 }
 
 template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
-const T& Result<T, E>::value() const {
+const T& Result<T, E>::unwrap_value() const {
   if (is_err()) {
     throw std::runtime_error(err_val.err_msg());
   }
@@ -237,18 +237,18 @@ const T& Result<T, E>::value() const {
 }
 
 template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
-T Result<T, E>::value_or_default() const noexcept requires std::default_initializable<T> {
+T Result<T, E>::unwrap_value_or_default() const noexcept requires std::default_initializable<T> {
   return is_ok() ? ok_val : T{};
 }
 
 template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
-Option<E> Result<T, E>::optional_err() const noexcept(std::is_nothrow_copy_constructible_v<E>) {
+Option<E> Result<T, E>::unwrap_err_to_optional() const noexcept(std::is_nothrow_copy_constructible_v<E>) {
   if (is_err()) return Option<E>(err_val);
   return Option<E>();
 }
 
 template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
-E& Result<T, E>::err() {
+E& Result<T, E>::unwrap_err() {
   if (is_ok()) {
     throw std::runtime_error("Result<T, E> does not contain Error");
   }
@@ -256,7 +256,7 @@ E& Result<T, E>::err() {
 }
 
 template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
-const E& Result<T, E>::err() const {
+const E& Result<T, E>::unwrap_err() const {
   if (is_ok()) {
     throw std::runtime_error("Result<T, E> does not contain Error");
   }

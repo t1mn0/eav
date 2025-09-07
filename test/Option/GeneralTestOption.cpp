@@ -276,12 +276,12 @@ TEST_F(OptionConversionFixture, ToResultWithRandomValue) {
   const auto r = filled_opt.to_result(tmn::err::StrErr(error_message));
 
   ASSERT_TRUE(r.is_ok());
-  EXPECT_EQ(r.value(), test_data.random_int_1);
+  EXPECT_EQ(r.unwrap_value(), test_data.random_int_1);
 }
 
 TEST_F(OptionConversionFixture, ToResultWithEmpty) {
   const auto r = empty_opt.to_result(tmn::err::StrErr(error_message));
 
   ASSERT_TRUE(r.is_err());
-  EXPECT_EQ(r.err().err_msg(), error_message);
+  EXPECT_EQ(r.unwrap_err().err_msg(), error_message);
 }
