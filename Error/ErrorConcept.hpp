@@ -21,6 +21,6 @@ concept Error = requires(const E& e, E&& moved) {
   requires std::equality_comparable<E>;
 };
 
-} // namespace 'tmn::err'
+} // namespace tmn::err;
 
 #endif // THROWLESS_ERROR_CONCEPT_HPP

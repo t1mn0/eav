@@ -32,11 +32,11 @@ class ResultOkErrConstructorFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
 
-  tmn::err::Result<int, tmn::err::StrErr> ok_result =
-    tmn::err::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
+  tmn::Result<int, tmn::err::StrErr> ok_result =
+    tmn::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
 
-  tmn::err::Result<int, tmn::err::StrErr> err_result =
-    tmn::err::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
+  tmn::Result<int, tmn::err::StrErr> err_result =
+    tmn::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
 };
 
 TEST_F(ResultOkErrConstructorFixture, OkConstructorWithRandomValue) {
@@ -54,15 +54,15 @@ TEST_F(ResultOkErrConstructorFixture, ErrConstructorWithRandomValue) {
 class ResultCopyConstructorFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
-  tmn::err::Result<int, tmn::err::StrErr> original_ok =
-    tmn::err::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
+  tmn::Result<int, tmn::err::StrErr> original_ok =
+    tmn::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
 
-  tmn::err::Result<int, tmn::err::StrErr> original_err =
-    tmn::err::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
+  tmn::Result<int, tmn::err::StrErr> original_err =
+    tmn::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
 };
 
 TEST_F(ResultCopyConstructorFixture, CopyOkResult) {
-  tmn::err::Result<int, tmn::err::StrErr> copied = original_ok;
+  tmn::Result<int, tmn::err::StrErr> copied = original_ok;
 
   ASSERT_TRUE(copied.is_ok());
   EXPECT_EQ(copied.unwrap_value(), test_data.random_int_1);
@@ -71,7 +71,7 @@ TEST_F(ResultCopyConstructorFixture, CopyOkResult) {
 }
 
 TEST_F(ResultCopyConstructorFixture, CopyErrResult) {
-  tmn::err::Result<int, tmn::err::StrErr> copied = original_err;
+  tmn::Result<int, tmn::err::StrErr> copied = original_err;
 
   ASSERT_TRUE(copied.is_err());
   EXPECT_EQ(copied.unwrap_err(), test_data.random_string);
@@ -85,20 +85,20 @@ protected:
 };
 
 TEST_F(ResultMoveConstructorFixture, MoveOkResult) {
-  tmn::err::Result<std::string, tmn::test_utils::TestErr> original =
-    tmn::err::Result<std::string, tmn::test_utils::TestErr>::Ok(test_data.random_string);
+  tmn::Result<std::string, tmn::test_utils::TestErr> original =
+    tmn::Result<std::string, tmn::test_utils::TestErr>::Ok(test_data.random_string);
 
-  tmn::err::Result<std::string, tmn::test_utils::TestErr> moved = std::move(original);
+  tmn::Result<std::string, tmn::test_utils::TestErr> moved = std::move(original);
 
   ASSERT_TRUE(moved.is_ok());
   EXPECT_EQ(moved.unwrap_value(), test_data.random_string);
 }
 
 TEST_F(ResultMoveConstructorFixture, MoveErrResult) {
-  tmn::err::Result<int, tmn::err::StrErr> original =
-    tmn::err::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
+  tmn::Result<int, tmn::err::StrErr> original =
+    tmn::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
 
-  tmn::err::Result<int, tmn::err::StrErr> moved = std::move(original);
+  tmn::Result<int, tmn::err::StrErr> moved = std::move(original);
 
   ASSERT_TRUE(moved.is_err());
   EXPECT_EQ(moved.unwrap_err(), test_data.random_string);
@@ -107,16 +107,16 @@ TEST_F(ResultMoveConstructorFixture, MoveErrResult) {
 class ResultAssignmentFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
-  tmn::err::Result<int, tmn::err::StrErr> target;
+  tmn::Result<int, tmn::err::StrErr> target;
 
   // Since Result() = delete, `target` initialized manually:
   ResultAssignmentFixture()
-    : target(tmn::err::Result<int, tmn::err::StrErr>::Err("initial")) {}
+    : target(tmn::Result<int, tmn::err::StrErr>::Err("initial")) {}
 };
 
 TEST_F(ResultAssignmentFixture, CopyAssignmentOk) {
-  tmn::err::Result<int, tmn::err::StrErr> source =
-    tmn::err::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
+  tmn::Result<int, tmn::err::StrErr> source =
+    tmn::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
 
   target = source;
 
@@ -127,8 +127,8 @@ TEST_F(ResultAssignmentFixture, CopyAssignmentOk) {
 }
 
 TEST_F(ResultAssignmentFixture, MoveAssignmentErr) {
-  tmn::err::Result<int, tmn::err::StrErr> source =
-    tmn::err::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
+  tmn::Result<int, tmn::err::StrErr> source =
+    tmn::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
 
   target = std::move(source);
 
@@ -142,15 +142,15 @@ protected:
 };
 
 TEST_F(ResultBoolConversionFixture, BoolConversionOk) {
-  tmn::err::Result<int, tmn::err::StrErr> ok_result =
-    tmn::err::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
+  tmn::Result<int, tmn::err::StrErr> ok_result =
+    tmn::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
 
   EXPECT_TRUE(static_cast<bool>(ok_result));
 }
 
 TEST_F(ResultBoolConversionFixture, BoolConversionErr) {
-  tmn::err::Result<int, tmn::err::StrErr> err_result =
-      tmn::err::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
+  tmn::Result<int, tmn::err::StrErr> err_result =
+      tmn::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
 
   EXPECT_FALSE(static_cast<bool>(err_result));
 }
@@ -161,8 +161,8 @@ protected:
 };
 
 TEST_F(ResultToOptionFixture, ToOptionFromOk) {
-  tmn::err::Result<int, tmn::err::StrErr> ok_result =
-      tmn::err::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
+  tmn::Result<int, tmn::err::StrErr> ok_result =
+      tmn::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
 
   auto option = ok_result.to_option();
 
@@ -171,8 +171,8 @@ TEST_F(ResultToOptionFixture, ToOptionFromOk) {
 }
 
 TEST_F(ResultToOptionFixture, ToOptionFromErr) {
-  tmn::err::Result<int, tmn::err::StrErr> err_result =
-    tmn::err::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
+  tmn::Result<int, tmn::err::StrErr> err_result =
+    tmn::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
 
   auto option = err_result.to_option();
 
@@ -182,11 +182,11 @@ TEST_F(ResultToOptionFixture, ToOptionFromErr) {
 class ResultValueAccessFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
-  tmn::err::Result<int, tmn::err::StrErr> ok_result =
-    tmn::err::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
+  tmn::Result<int, tmn::err::StrErr> ok_result =
+    tmn::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
 
-  tmn::err::Result<int, tmn::err::StrErr> err_result =
-    tmn::err::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
+  tmn::Result<int, tmn::err::StrErr> err_result =
+    tmn::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
 };
 
 TEST_F(ResultValueAccessFixture, ValueAccessOk) {
@@ -211,11 +211,11 @@ TEST_F(ResultValueAccessFixture, ValueOrWithErr) {
 class ResultErrAccessFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
-  tmn::err::Result<int, tmn::err::StrErr> ok_result =
-    tmn::err::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
+  tmn::Result<int, tmn::err::StrErr> ok_result =
+    tmn::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
 
-  tmn::err::Result<int, tmn::err::StrErr> err_result =
-    tmn::err::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
+  tmn::Result<int, tmn::err::StrErr> err_result =
+    tmn::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
 };
 
 TEST_F(ResultErrAccessFixture, ErrAccessOkThrows) {
@@ -243,8 +243,8 @@ protected:
 };
 
 TEST_F(ResultFmapFixture, FmapOk) {
-  tmn::err::Result<int, tmn::err::StrErr> ok_result =
-    tmn::err::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
+  tmn::Result<int, tmn::err::StrErr> ok_result =
+    tmn::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
 
   auto transformed = ok_result.fmap([](int x) { return x * 2; });
 
@@ -253,8 +253,8 @@ TEST_F(ResultFmapFixture, FmapOk) {
 }
 
 TEST_F(ResultFmapFixture, FmapErr) {
-  tmn::err::Result<int, tmn::err::StrErr> err_result =
-    tmn::err::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
+  tmn::Result<int, tmn::err::StrErr> err_result =
+    tmn::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
 
   auto transformed = err_result.fmap([](int x) { return x * 2; });
 
@@ -268,8 +268,8 @@ protected:
 };
 
 TEST_F(ResultAndThenFixture, AndThenOk) {
-  tmn::err::Result<int, tmn::err::StrErr> ok_result =
-    tmn::err::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
+  tmn::Result<int, tmn::err::StrErr> ok_result =
+    tmn::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
 
   auto result = ok_result.and_then([](int x) {
     return std::to_string(x);
@@ -280,11 +280,11 @@ TEST_F(ResultAndThenFixture, AndThenOk) {
 }
 
 TEST_F(ResultAndThenFixture, AndThenErr) {
-  tmn::err::Result<int, tmn::err::StrErr> err_result =
-    tmn::err::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
+  tmn::Result<int, tmn::err::StrErr> err_result =
+    tmn::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
 
   auto result = err_result.and_then([](int x) {
-    return tmn::err::Result<std::string, tmn::err::StrErr>::Ok(std::to_string(x));
+    return tmn::Result<std::string, tmn::err::StrErr>::Ok(std::to_string(x));
   });
 
   ASSERT_TRUE(result.is_err());
@@ -297,14 +297,14 @@ protected:
 };
 
 TEST_F(ResultTemplateMethodsFixture, OkWithArgs) {
-  auto result = tmn::err::Result<std::string, tmn::test_utils::TestErr>::Ok("test", std::size_t{3});
+  auto result = tmn::Result<std::string, tmn::test_utils::TestErr>::Ok("test", std::size_t{3});
 
   ASSERT_TRUE(result.is_ok());
   EXPECT_EQ(result.unwrap_value(), "tes");
 }
 
 TEST_F(ResultTemplateMethodsFixture, ErrWithArgs) {
-  auto result = tmn::err::Result<int, tmn::err::StrErr>::Err("error", std::size_t{4});
+  auto result = tmn::Result<int, tmn::err::StrErr>::Err("error", std::size_t{4});
 
   ASSERT_TRUE(result.is_err());
   EXPECT_EQ(result.unwrap_err(), "erro");
@@ -316,11 +316,11 @@ protected:
 };
 
 TEST_F(ResultSwapFixture, SwapResults) {
-  tmn::err::Result<int, tmn::err::StrErr> result1 =
-    tmn::err::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
+  tmn::Result<int, tmn::err::StrErr> result1 =
+    tmn::Result<int, tmn::err::StrErr>::Ok(test_data.random_int_1);
 
-  tmn::err::Result<int, tmn::err::StrErr> result2 =
-    tmn::err::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
+  tmn::Result<int, tmn::err::StrErr> result2 =
+    tmn::Result<int, tmn::err::StrErr>::Err(test_data.random_string);
 
   std::swap(result1, result2);
 

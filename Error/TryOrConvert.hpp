@@ -9,25 +9,25 @@
 #include "Error.hpp" // for: ExceptionErr;
 #include "ErrorConcept.hpp" // for: Error<E>;
 
-namespace tmn::err {
+namespace tmn {
 
 // forward-declaration:
-template<typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template<typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 class Result;
 
 // analog of 'try', which converts the received exception to Error:
 template<typename Fn, typename... Args>
-auto try_or_convert(Fn&& fn, Args&&... args) -> Result<std::invoke_result_t<Fn, Args...>, ExceptionErr> {
+auto try_or_convert(Fn&& fn, Args&&... args) -> Result<std::invoke_result_t<Fn, Args...>, err::GeneralExceptionErr> {
   try {
-    return Result<std::invoke_result_t<Fn, Args...>, ExceptionErr>::Ok(std::invoke(std::forward<Fn>(fn), std::forward<Args>(args)...));
+    return Result<std::invoke_result_t<Fn, Args...>, err::GeneralExceptionErr>::Ok(std::invoke(std::forward<Fn>(fn), std::forward<Args>(args)...));
   } catch (const std::exception& e) {
-    return Result<std::invoke_result_t<Fn, Args...>, ExceptionErr>::Err(ExceptionErr{e});
+    return Result<std::invoke_result_t<Fn, Args...>, err::GeneralExceptionErr>::Err(err::GeneralExceptionErr{e});
   } catch (...) {
-    return Result<std::invoke_result_t<Fn, Args...>, ExceptionErr>::Err(ExceptionErr{});
+    return Result<std::invoke_result_t<Fn, Args...>, err::GeneralExceptionErr>::Err(err::GeneralExceptionErr{});
   }
 }
 
-};
+} // namespace tmn::err;
 
 #include "../Result/Result.hpp"
 

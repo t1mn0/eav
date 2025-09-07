@@ -8,7 +8,7 @@
 
 class OptionDefaultConstructorFixture : public ::testing::Test {
 protected:
-  tmn::err::Option<int> default_opt;
+  tmn::Option<int> default_opt;
 };
 
 TEST_F(OptionDefaultConstructorFixture, DefaultConstructor) {
@@ -19,9 +19,9 @@ TEST_F(OptionDefaultConstructorFixture, DefaultConstructor) {
 class OptionValueConstructorFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
-  tmn::err::Option<int> int_opt{test_data.random_int_1};
-  tmn::err::Option<double> double_opt{test_data.random_double_1};
-  tmn::err::Option<std::string> string_opt{test_data.random_string};
+  tmn::Option<int> int_opt{test_data.random_int_1};
+  tmn::Option<double> double_opt{test_data.random_double_1};
+  tmn::Option<std::string> string_opt{test_data.random_string};
 };
 
 TEST_F(OptionValueConstructorFixture, ValueConstructorWithRandomValues) {
@@ -38,11 +38,11 @@ TEST_F(OptionValueConstructorFixture, ValueConstructorWithRandomValues) {
 class OptionMoveConstructorFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
-  tmn::err::Option<std::string> original_opt{test_data.random_string};
+  tmn::Option<std::string> original_opt{test_data.random_string};
 };
 
 TEST_F(OptionMoveConstructorFixture, MoveConstructorWithRandomValue) {
-  tmn::err::Option<std::string> moved_opt(std::move(original_opt));
+  tmn::Option<std::string> moved_opt(std::move(original_opt));
 
   ASSERT_TRUE(moved_opt.has_value());
   EXPECT_EQ(moved_opt.value(), test_data.random_string);
@@ -52,11 +52,11 @@ TEST_F(OptionMoveConstructorFixture, MoveConstructorWithRandomValue) {
 class OptionCopyConstructorFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
-  tmn::err::Option<int> original_opt{test_data.random_int_1};
+  tmn::Option<int> original_opt{test_data.random_int_1};
 };
 
 TEST_F(OptionCopyConstructorFixture, CopyConstructorWithRandomValue) {
-  tmn::err::Option<int> copied_opt(original_opt);
+  tmn::Option<int> copied_opt(original_opt);
 
   ASSERT_TRUE(copied_opt.has_value());
   EXPECT_EQ(copied_opt.value(), test_data.random_int_1);
@@ -67,8 +67,8 @@ TEST_F(OptionCopyConstructorFixture, CopyConstructorWithRandomValue) {
 class OptionAssignmentOperatorsFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
-  tmn::err::Option<int> source_opt{test_data.random_int_1};
-  tmn::err::Option<int> target_opt;
+  tmn::Option<int> source_opt{test_data.random_int_1};
+  tmn::Option<int> target_opt;
 };
 
 TEST_F(OptionAssignmentOperatorsFixture, CopyAssignmentWithRandomValue) {
@@ -82,7 +82,7 @@ TEST_F(OptionAssignmentOperatorsFixture, CopyAssignmentWithRandomValue) {
 
 TEST_F(OptionAssignmentOperatorsFixture, MoveAssignmentWithRandomValue) {
   const int new_value = tmn::test_utils::generate_random_val(1001, 2000);
-  target_opt = tmn::err::Option<int>(new_value);
+  target_opt = tmn::Option<int>(new_value);
 
   ASSERT_TRUE(target_opt.has_value());
   EXPECT_EQ(target_opt.value(), new_value);
@@ -93,8 +93,8 @@ protected:
   tmn::test_utils::RandomTestData test_data;
   const int value1 = test_data.random_int_1;
   const int value2 = tmn::test_utils::generate_random_val(1001, 2000);
-  tmn::err::Option<int> opt1{value1};
-  tmn::err::Option<int> opt2{value2};
+  tmn::Option<int> opt1{value1};
+  tmn::Option<int> opt2{value2};
 };
 
 TEST_F(OptionSwapFixture, SwapWithRandomValues) {
@@ -108,8 +108,8 @@ class OptionValueOrFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
   const int default_value = tmn::test_utils::generate_random_val(2001, 3000);
-  tmn::err::Option<int> filled_opt{test_data.random_int_1};
-  tmn::err::Option<int> empty_opt;
+  tmn::Option<int> filled_opt{test_data.random_int_1};
+  tmn::Option<int> empty_opt;
 };
 
 TEST_F(OptionValueOrFixture, ValueOrWithRandomValues) {
@@ -125,8 +125,8 @@ TEST_F(OptionValueOrFixture, ValueOrDefaultWithRandomValue) {
 class OptionValueOrExceptionFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
-  tmn::err::Option<int> filled_opt{test_data.random_int_1};
-  tmn::err::Option<int> empty_opt;
+  tmn::Option<int> filled_opt{test_data.random_int_1};
+  tmn::Option<int> empty_opt;
 };
 
 TEST_F(OptionValueOrExceptionFixture, ValueAccessWithRandomValue) {
@@ -140,7 +140,7 @@ TEST_F(OptionValueOrExceptionFixture, ValueAccessThrowsOnEmpty) {
 class OptionDestroyValueFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
-  tmn::err::Option<std::string> string_opt{test_data.random_string};
+  tmn::Option<std::string> string_opt{test_data.random_string};
 };
 
 TEST_F(OptionDestroyValueFixture, DestroyValueWithRandomString) {
@@ -153,8 +153,8 @@ TEST_F(OptionDestroyValueFixture, DestroyValueWithRandomString) {
 class OptionMapFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
-  tmn::err::Option<int> filled_opt{test_data.random_int_1};
-  tmn::err::Option<int> empty_opt;
+  tmn::Option<int> filled_opt{test_data.random_int_1};
+  tmn::Option<int> empty_opt;
 };
 
 TEST_F(OptionMapFixture, MapWithRandomValue) {
@@ -172,9 +172,9 @@ TEST_F(OptionMapFixture, MapWithEmpty) {
 class OptionAndThenFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
-  tmn::err::Option<int> int_opt{test_data.random_int_1};
-  tmn::err::Option<std::string> string_opt{test_data.random_string};
-  tmn::err::Option<int> empty_opt;
+  tmn::Option<int> int_opt{test_data.random_int_1};
+  tmn::Option<std::string> string_opt{test_data.random_string};
+  tmn::Option<int> empty_opt;
 };
 
 TEST_F(OptionAndThenFixture, AndThenWithRandomInt) {
@@ -198,8 +198,8 @@ class OptionOrElseFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
   const int fallback_value = tmn::test_utils::generate_random_val(3001, 4000);
-  tmn::err::Option<int> filled_opt{test_data.random_int_1};
-  tmn::err::Option<int> empty_opt;
+  tmn::Option<int> filled_opt{test_data.random_int_1};
+  tmn::Option<int> empty_opt;
 };
 
 TEST_F(OptionOrElseFixture, OrElseWithRandomValue) {
@@ -231,7 +231,7 @@ protected:
 };
 
 TEST_F(OptionChainingFixture, AndThenChainWithRandomValue) {
-  const auto r = tmn::err::Option<int>(test_data.random_int_1)
+  const auto r = tmn::Option<int>(test_data.random_int_1)
     .and_then([](int x) { return x * 2; })
     .and_then([](int x) { return x + 5; })
     .and_then([](int x) { return std::to_string(x); });
@@ -242,7 +242,7 @@ TEST_F(OptionChainingFixture, AndThenChainWithRandomValue) {
 }
 
 TEST_F(OptionChainingFixture, OrElseChain) {
-  const auto r = tmn::err::Option<int>()
+  const auto r = tmn::Option<int>()
     .or_else([this]() { return fallback_value; })
     .or_else([]() { return tmn::test_utils::generate_random_val(5001, 6000); });
 
@@ -252,7 +252,7 @@ TEST_F(OptionChainingFixture, OrElseChain) {
 
 TEST_F(OptionChainingFixture, MixedChainWithRandomValue) {
   const int initial_value = test_data.random_int_1;
-  const auto r = tmn::err::Option<int>(initial_value)
+  const auto r = tmn::Option<int>(initial_value)
     .and_then([](int x) { return x % 2 == 0 ? x : x * 2; })
     .or_else([this]() { return fallback_value; })
     .and_then([](int x) { return x * 3; });
@@ -268,8 +268,8 @@ class OptionConversionFixture : public ::testing::Test {
 protected:
   tmn::test_utils::RandomTestData test_data;
   const std::string error_message = "error_" + std::to_string(test_data.random_int_1);
-  tmn::err::Option<int> filled_opt{test_data.random_int_1};
-  tmn::err::Option<int> empty_opt;
+  tmn::Option<int> filled_opt{test_data.random_int_1};
+  tmn::Option<int> empty_opt;
 };
 
 TEST_F(OptionConversionFixture, ToResultWithRandomValue) {

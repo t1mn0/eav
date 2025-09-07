@@ -17,8 +17,8 @@ protected: //* methods:
 };
 
 TEST_F(OptionArithmeticTestFixture, IntAdditionWithRandomValues) {
-  tmn::err::Option<int> a(test_data.random_int_1);
-  tmn::err::Option<int> b(test_data.random_int_2);
+  tmn::Option<int> a(test_data.random_int_1);
+  tmn::Option<int> b(test_data.random_int_2);
 
   const auto c = a + b;
 
@@ -27,8 +27,8 @@ TEST_F(OptionArithmeticTestFixture, IntAdditionWithRandomValues) {
 }
 
 TEST_F(OptionArithmeticTestFixture, DoubleAdditionWithRandomValues) {
-  tmn::err::Option<double> a(test_data.random_double_1);
-  tmn::err::Option<double> b(test_data.random_double_2);
+  tmn::Option<double> a(test_data.random_double_1);
+  tmn::Option<double> b(test_data.random_double_2);
 
   const auto c = a + b;
 
@@ -37,8 +37,8 @@ TEST_F(OptionArithmeticTestFixture, DoubleAdditionWithRandomValues) {
 }
 
 TEST_F(OptionArithmeticTestFixture, SubtractionWithRandomValues) {
-  tmn::err::Option<int> a(test_data.random_int_1);
-  tmn::err::Option<int> b(test_data.random_int_2);
+  tmn::Option<int> a(test_data.random_int_1);
+  tmn::Option<int> b(test_data.random_int_2);
 
   const auto c = a - b;
 
@@ -47,8 +47,8 @@ TEST_F(OptionArithmeticTestFixture, SubtractionWithRandomValues) {
 }
 
 TEST_F(OptionArithmeticTestFixture, MultiplicationWithRandomValues) {
-  tmn::err::Option<int> a(test_data.random_int_1);
-  tmn::err::Option<int> b(test_data.random_int_2);
+  tmn::Option<int> a(test_data.random_int_1);
+  tmn::Option<int> b(test_data.random_int_2);
 
   const auto c = a * b;
 
@@ -63,8 +63,8 @@ TEST_F(OptionArithmeticTestFixture, DivisionWithRandomValues) {
     tmn::test_utils::RandomTestData::max_int
   );
 
-  tmn::err::Option<int> dividend(test_data.random_int_1);
-  tmn::err::Option<int> divisor_opt(divisor);
+  tmn::Option<int> dividend(test_data.random_int_1);
+  tmn::Option<int> divisor_opt(divisor);
 
   const auto c = dividend / divisor_opt;
 
@@ -73,8 +73,8 @@ TEST_F(OptionArithmeticTestFixture, DivisionWithRandomValues) {
 }
 
 TEST_F(OptionArithmeticTestFixture, DivisionByZero) {
-  tmn::err::Option<int> a(test_data.random_int_1);
-  tmn::err::Option<int> zero(0);
+  tmn::Option<int> a(test_data.random_int_1);
+  tmn::Option<int> zero(0);
 
   const auto c = a / zero;
 
@@ -82,9 +82,9 @@ TEST_F(OptionArithmeticTestFixture, DivisionByZero) {
 }
 
 TEST_F(OptionArithmeticTestFixture, CompoundAssignmentOperators) {
-  tmn::err::Option<int> a(test_data.random_int_1);
+  tmn::Option<int> a(test_data.random_int_1);
   // Divisor must not be zero:
-  const tmn::err::Option<int> b = tmn::test_utils::generate_random_val(
+  const tmn::Option<int> b = tmn::test_utils::generate_random_val(
     1,
     tmn::test_utils::RandomTestData::max_int
   );
@@ -103,19 +103,19 @@ TEST_F(OptionArithmeticTestFixture, CompoundAssignmentOperators) {
   ASSERT_TRUE(a.has_value()) << "CompoundAssignmentMultiplication of the Option<int> for two Options with valid values should have the value";
   EXPECT_EQ(a.value(), original_value * b.value());
 
-  a = tmn::err::Option<int>(original_value * b.value());
+  a = tmn::Option<int>(original_value * b.value());
   a /= b;
   ASSERT_TRUE(a.has_value()) << "CompoundAssignmentDivision of the Option<int> for two Options with valid values should have the value";
   EXPECT_EQ(a.value(), original_value);
 }
 
 TEST_F(OptionArithmeticTestFixture, MixedTypesArithmetic) {
-  tmn::err::Option<int> int_val(test_data.random_int_1);
-  tmn::err::Option<double> double_val(test_data.random_double_1);
+  tmn::Option<int> int_val(test_data.random_int_1);
+  tmn::Option<double> double_val(test_data.random_double_1);
 
   const auto res = int_val * double_val;
 
-  static_assert(std::is_same_v<decltype(res), const tmn::err::Option<double>>);
+  static_assert(std::is_same_v<decltype(res), const tmn::Option<double>>);
   ASSERT_TRUE(res.has_value()) << "MixedTypesMultiplication of the Option(int&double) for two Options with valid values should have the value";
   EXPECT_DOUBLE_EQ(res.value(), test_data.random_int_1 * test_data.random_double_1);
 }
@@ -124,8 +124,8 @@ TEST_F(OptionArithmeticTestFixture, StringConcatenation) {
   const std::string prefix = "Hello";
   const std::string suffix = " World";
 
-  tmn::err::Option<std::string> a(prefix);
-  tmn::err::Option<std::string> b(suffix);
+  tmn::Option<std::string> a(prefix);
+  tmn::Option<std::string> b(suffix);
 
   const auto c = a + b;
 
@@ -134,8 +134,8 @@ TEST_F(OptionArithmeticTestFixture, StringConcatenation) {
 }
 
 TEST_F(OptionArithmeticTestFixture, OperationsWithEmptyOperands) {
-  tmn::err::Option<int> filled_value(test_data.random_int_1);
-  tmn::err::Option<int> empty_value;
+  tmn::Option<int> filled_value(test_data.random_int_1);
+  tmn::Option<int> empty_value;
 
   // Binary operations with empty operand:
   const auto addition_result = filled_value + empty_value;
@@ -145,7 +145,7 @@ TEST_F(OptionArithmeticTestFixture, OperationsWithEmptyOperands) {
   EXPECT_FALSE(subtraction_result.has_value());
 
   // CompoundAssignment operations with empty operand:
-  tmn::err::Option<int> mutable_value(test_data.random_int_1);
+  tmn::Option<int> mutable_value(test_data.random_int_1);
   mutable_value += empty_value;
 
   EXPECT_FALSE(mutable_value.has_value());
@@ -158,9 +158,9 @@ TEST_F(OptionArithmeticTestFixture, ChainedOperations) {
     tmn::test_utils::RandomTestData::min_int,
     tmn::test_utils::RandomTestData::max_int);
 
-  tmn::err::Option<int> a(value1);
-  tmn::err::Option<int> b(value2);
-  tmn::err::Option<int> c(value3);
+  tmn::Option<int> a(value1);
+  tmn::Option<int> b(value2);
+  tmn::Option<int> c(value3);
 
   const auto d = (a + b) * c;
 

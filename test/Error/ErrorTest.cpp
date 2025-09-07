@@ -9,20 +9,20 @@ protected: //* structs and fields:
     const char* what() const noexcept override { return "Test exception"; }
   };
 
-  tmn::err::ExceptionErr excerr1;
-  tmn::err::ExceptionErr excerr2;
-  tmn::err::ExceptionErr excerr3;
-  tmn::err::ExceptionErr excerr4;
+  tmn::err::GeneralExceptionErr excerr1;
+  tmn::err::GeneralExceptionErr excerr2;
+  tmn::err::GeneralExceptionErr excerr3;
+  tmn::err::GeneralExceptionErr excerr4;
 
 protected: //* methods:
   void SetUp() override {
     TestException exc;
-    excerr1 = tmn::err::ExceptionErr(exc);
-    excerr2 = tmn::err::ExceptionErr(); // default constructor;
+    excerr1 = tmn::err::GeneralExceptionErr(exc);
+    excerr2 = tmn::err::GeneralExceptionErr(); // default constructor;
 
     TestException exc2;
-    excerr3 = tmn::err::ExceptionErr(exc2);
-    excerr4 = tmn::err::ExceptionErr(std::runtime_error("Different error"));
+    excerr3 = tmn::err::GeneralExceptionErr(exc2);
+    excerr4 = tmn::err::GeneralExceptionErr(std::runtime_error("Different error"));
   }
 };
 

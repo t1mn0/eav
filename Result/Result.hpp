@@ -6,9 +6,9 @@
 
 #include "../Option/Option.hpp" // for: class conversion;
 
-namespace tmn::err {
+namespace tmn {
 
-template<typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template<typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 class Result {
 private: //* substructures:
   enum class State {
@@ -107,9 +107,9 @@ private: //* friends:
     first.swap(second);
   }
 
-}; // class 'Result';
+}; // class Result;
 
-} // for: namespace tmn::err;
+} // for: namespace tmn;
 
 #include "Result.tpp" // for: Result definition;
 

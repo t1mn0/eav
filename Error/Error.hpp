@@ -38,26 +38,26 @@ public:
 // Check that StrErr satisfies the concept of Error<E>:
 static_assert(Error<StrErr>, "StrErr must satisfy Error concept");
 
-struct ExceptionErr {
+struct GeneralExceptionErr {
 private:
   std::string msg = "Unknown error";
   std::string _exception_name = "Unknown type";
 
 public:
   template<typename E> requires std::derived_from<E, std::exception>
-  explicit ExceptionErr(const E& ex) : msg(ex.what()), _exception_name(typeid(ex).name()) {}
-  ExceptionErr() = default;
+  explicit GeneralExceptionErr(const E& ex) : msg(ex.what()), _exception_name(typeid(ex).name()) {}
+  GeneralExceptionErr() = default;
 
   std::string exception_name() const noexcept { return _exception_name; }
   std::string err_msg() const noexcept { return "[" + _exception_name + "]: "+ msg; }
   const char* what() const noexcept { return msg.c_str(); }
 
-  bool operator==(const ExceptionErr& oth) const noexcept { return _exception_name == oth._exception_name && msg == oth.msg; }
+  bool operator==(const GeneralExceptionErr& oth) const noexcept { return _exception_name == oth._exception_name && msg == oth.msg; }
 };
 
 // Check that StrErr satisfies the concept of Error<E>:
-static_assert(Error<ExceptionErr>, "ExceptionErr must satisfy Error concept");
+static_assert(Error<GeneralExceptionErr>, "ExceptionErr must satisfy Error concept");
 
-} // namespace 'tmn::err';
+} // namespace tmn::err;
 
 #endif // THROWLESS_ERROR_HPP;

@@ -7,13 +7,13 @@
 #include "../Concepts/Concepts.hpp"
 #include "../Error/ErrorConcept.hpp"
 
-namespace tmn::err {
+namespace tmn {
 
 // forward-declaration:
-template<typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template<typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 class Result;
 
-template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
+template <typename T> requires (!std::is_void_v<T> && err::CopyableOrVoid<T> && err::MoveableOrVoid<T>)
 class Option {
 private: //* fields :
   // always allocate sizeof(T) bytes for the value;
@@ -54,7 +54,7 @@ public: //* methods :
   bool destroy_value() noexcept;
 
   //  <--- conversions (cast) : --->
-  template <typename E> requires (!std::is_void_v<T> && Error<E>)
+  template <typename E> requires (!std::is_void_v<T> && err::Error<E>)
   Result<T, E> to_result(E error_if_none);
 
   //*   <--- functional methods --->
@@ -85,16 +85,16 @@ public: //* methods :
      -> Option<T>;
 
   // Coproduction variants (or sum) on the Option<T> monad:
-  template <typename U> requires Addable<T, U>
+  template <typename U> requires arithmetic::Addable<T, U>
   Option<T>& operator+=(const Option<U>& rhs);
 
-  template <typename U> requires Subtractable<T, U>
+  template <typename U> requires arithmetic::Subtractable<T, U>
   Option<T>& operator-=(const Option<U>& rhs);
 
-  template <typename U> requires Multipliable<T, U>
+  template <typename U> requires arithmetic::Multipliable<T, U>
   Option<T>& operator*=(const Option<U>& rhs);
 
-  template <typename U> requires Dividable<T, U>
+  template <typename U> requires arithmetic::Dividable<T, U>
   Option<T>& operator/=(const Option<U>& rhs);
 
 private: //* methods:
@@ -105,16 +105,16 @@ private: //* friends:
     first.swap(second);
   }
 
-}; // class 'Option';
+}; // class Option;
 
 //* <--- external mnemonic functions --->
-template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
+template <typename T> requires (!std::is_void_v<T> && err::CopyableOrVoid<T> && err::MoveableOrVoid<T>)
 Option<T> None() noexcept;
 
-template <typename T> requires (!std::is_void_v<T> && CopyableOrVoid<T> && MoveableOrVoid<T>)
+template <typename T> requires (!std::is_void_v<T> && err::CopyableOrVoid<T> && err::MoveableOrVoid<T>)
 Option<T> Some(T val) noexcept(std::is_nothrow_move_constructible_v<T>);
 
-} // namespace 'tmn::err'
+} // namespace tmn;
 
 #include "Option.tpp" // for: Option definition;
 #include "CoproductOperations.hpp" // for: external monoid functions for Option objects;

@@ -3,10 +3,10 @@
 
 #include "Option/Option.hpp"
 
-tmn::err::Option<std::string> find_user_name(int user_id) {
+tmn::Option<std::string> find_user_name(int user_id) {
   if (user_id == 1) return std::string("Alice");
   if (user_id == 2) return std::string("Bob");
-  return tmn::err::None<std::string>();
+  return tmn::None<std::string>();
 }
 
 int main() {
@@ -16,5 +16,5 @@ int main() {
       return std::string("User not found");
     });
 
-  std::cout << name.value() << std::endl; // User not found;
+  std::cout << name.value() << std::endl; // cout: User not found;
 }

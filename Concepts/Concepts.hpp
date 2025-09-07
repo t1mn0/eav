@@ -14,6 +14,10 @@ concept CopyableOrVoid = std::same_as<T, void> || (std::is_copy_constructible_v<
 template <typename T>
 concept MoveableOrVoid = std::same_as<T, void> || (std::is_move_constructible_v<T> && std::is_move_assignable_v<T>);
 
+} // namespace tmn::err;
+
+namespace tmn::func {
+
 //*   <--- Concepts for the general structure of the created functional entities --->
 
 template <template <typename> typename F, typename T, typename Func>
@@ -46,7 +50,11 @@ concept Monad = requires(M<T> monad, Func fn) {
   // );
 };
 
+} // namespace tmn::func;
+
 //*   <--- Concepts for for checking that the template type T supports arithmetic operations --->
+
+namespace tmn::arithmetic{
 
 template <typename T, typename U = T>
 concept Addable = requires(T a, U b) {
@@ -69,7 +77,7 @@ concept Dividable = requires(T a, U b) {
   requires !std::is_same_v<U, bool>;
 };
 
-} // namespace 'tmn::err'
+} // namespace tmn::arithmetic;
 
 
-#endif // THROWLESS_CONCEPTS_HPP
+#endif // THROWLESS_CONCEPTS_HPP;

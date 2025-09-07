@@ -7,11 +7,11 @@
 
 #include "Option.hpp"
 
-namespace tmn::err {
+namespace tmn {
 
 // arithmetic operations (free funcs) that support coproduct for the Option<T> monad
 template <typename T, typename U>
-requires tmn::err::Addable<T, U>
+requires tmn::arithmetic::Addable<T, U>
 auto operator+(const Option<T>& lhs, const Option<U>& rhs)
   -> Option<decltype(std::declval<T>() + std::declval<U>())>
 {
@@ -24,7 +24,7 @@ auto operator+(const Option<T>& lhs, const Option<U>& rhs)
 }
 
 template <typename T, typename U>
-requires tmn::err::Subtractable<T, U>
+requires tmn::arithmetic::Subtractable<T, U>
 auto operator-(const Option<T>& lhs, const Option<U>& rhs)
   -> Option<decltype(std::declval<T>() - std::declval<U>())>
 {
@@ -37,7 +37,7 @@ auto operator-(const Option<T>& lhs, const Option<U>& rhs)
 }
 
 template <typename T, typename U>
-requires tmn::err::Multipliable<T, U>
+requires tmn::arithmetic::Multipliable<T, U>
 auto operator*(const Option<T>& lhs, const Option<U>& rhs)
   -> Option<decltype(std::declval<T>() * std::declval<U>())>
 {
@@ -50,7 +50,7 @@ auto operator*(const Option<T>& lhs, const Option<U>& rhs)
 }
 
 template <typename T, typename U>
-requires tmn::err::Dividable<T, U>
+requires tmn::arithmetic::Dividable<T, U>
 auto operator/(const Option<T>& lhs, const Option<U>& rhs)
   -> Option<decltype(std::declval<T>() / std::declval<U>())>
 {
@@ -65,4 +65,4 @@ auto operator/(const Option<T>& lhs, const Option<U>& rhs)
   return Option<decltype(std::declval<T>() / std::declval<U>())>();
 }
 
-}
+} // namespace tmn;

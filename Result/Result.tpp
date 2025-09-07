@@ -8,61 +8,61 @@
 #include "Result.hpp"
 #include "../Error/ErrorConcept.hpp"
 
-namespace tmn::err {
+namespace tmn {
 
 //*   <--- constructors, (~)ro5, destructor --->
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Result<T, E>::Result(const T& val) noexcept(std::is_nothrow_copy_constructible_v<T>)
   : state(State::OkState), ok_val(val) {}
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Result<T, E>::Result(T&& val) noexcept(std::is_nothrow_move_constructible_v<T>)
   : state(State::OkState), ok_val(std::move(val)) {}
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Result<T, E>::Result(const E& err) noexcept(std::is_nothrow_copy_constructible_v<E>)
   : state(State::ErrState), err_val(err) {}
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Result<T, E>::Result(E&& err) noexcept(std::is_nothrow_move_constructible_v<E>)
   : state(State::ErrState), err_val(std::move(err)) {}
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Result<T,E> Result<T, E>::Ok(const T& val) noexcept requires (!std::is_void_v<T>) {
   return Result(val);
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Result<T,E> Result<T, E>::Ok(T&& val) noexcept requires (!std::is_void_v<T>) {
   return Result(val);
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Result<T,E> Result<T, E>::Err(const E& err) noexcept {
   return Result(err);
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Result<T,E> Result<T, E>::Err(E&& err) noexcept {
   return Result(std::move(err));
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 template<typename... Args> requires std::constructible_from<T, Args...>
 Result<T,E> Result<T, E>::Ok(Args&&... args) noexcept(std::is_nothrow_constructible_v<T, Args...>) {
   T v {std::forward<Args>(args)...};
   return Result(v);
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 template<typename... Args> requires std::constructible_from<E, Args...>
 Result<T, E> Result<T, E>::Err(Args&&... args) noexcept(std::is_nothrow_constructible_v<E, Args...>) {
   E e {std::forward<Args>(args)...};
   return Result(e);
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Result<T, E>::Result(const Result& oth)
   noexcept(std::is_nothrow_copy_constructible_v<T> && std::is_nothrow_copy_constructible_v<E>)
 {
@@ -79,7 +79,7 @@ Result<T, E>::Result(const Result& oth)
   }
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Result<T, E>::Result(Result&& oth)
   noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_constructible_v<E>)
 {
@@ -97,7 +97,7 @@ Result<T, E>::Result(Result&& oth)
   }
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Result<T,E>& Result<T, E>::operator=(const Result<T,E>& oth)
   noexcept(std::is_nothrow_copy_constructible_v<T> && std::is_nothrow_copy_constructible_v<E>)
 {
@@ -123,7 +123,7 @@ Result<T,E>& Result<T, E>::operator=(const Result<T,E>& oth)
   return *this;
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Result<T,E>& Result<T,E>::operator=(Result<T,E>&& oth)
     noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_constructible_v<E>)
 {
@@ -151,7 +151,7 @@ Result<T,E>& Result<T,E>::operator=(Result<T,E>&& oth)
   return *this;
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Result<T, E>::~Result() {
   if (state == State::OkState) {
     ok_val.~T();
@@ -161,7 +161,7 @@ Result<T, E>::~Result() {
   }
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 void Result<T, E>::swap(Result<T, E> &oth)
     noexcept(std::is_nothrow_swappable_v<T> && std::is_nothrow_move_constructible_v<T> &&
              std::is_nothrow_swappable_v<E> && std::is_nothrow_move_constructible_v<E>)
@@ -173,12 +173,12 @@ void Result<T, E>::swap(Result<T, E> &oth)
   oth = std::move(temp);
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Result<T, E>::operator bool() const noexcept{
   return is_ok();
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Option<T> Result<T, E>::to_option() {
   if (is_ok()) {
     return Option<T>(ok_val);
@@ -188,35 +188,35 @@ Option<T> Result<T, E>::to_option() {
 
 //*   <--- specialized algorithms & methods  --->
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 bool Result<T,E>::is_ok() const noexcept {
   return state == State::OkState;
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 bool Result<T,E>::is_err() const noexcept {
   return state == State::ErrState;
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Option<T> Result<T, E>::unwrap_value_to_optional() const noexcept(std::is_nothrow_copy_constructible_v<T>) {
   if (is_ok()) return Option<T>(ok_val);
   return Option<T>();
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 T& Result<T,E>::unwrap_value_or(T& val) noexcept(std::is_nothrow_copy_constructible_v<T>) {
   return is_ok() ? ok_val : val;
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 const T& Result<T,E>::unwrap_value_or(const T& val) const
   noexcept(std::is_nothrow_copy_constructible_v<T>)
 {
   return is_ok() ? ok_val : val;
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 T& Result<T, E>::unwrap_value() {
   if (is_err()) {
     throw std::runtime_error(err_val.err_msg());
@@ -228,7 +228,7 @@ T& Result<T, E>::unwrap_value() {
   return ok_val;
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 const T& Result<T, E>::unwrap_value() const {
   if (is_err()) {
     throw std::runtime_error(err_val.err_msg());
@@ -236,18 +236,18 @@ const T& Result<T, E>::unwrap_value() const {
   return ok_val;
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 T Result<T, E>::unwrap_value_or_default() const noexcept requires std::default_initializable<T> {
   return is_ok() ? ok_val : T{};
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Option<E> Result<T, E>::unwrap_err_to_optional() const noexcept(std::is_nothrow_copy_constructible_v<E>) {
   if (is_err()) return Option<E>(err_val);
   return Option<E>();
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 E& Result<T, E>::unwrap_err() {
   if (is_ok()) {
     throw std::runtime_error("Result<T, E> does not contain Error");
@@ -255,7 +255,7 @@ E& Result<T, E>::unwrap_err() {
   return err_val;
 }
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 const E& Result<T, E>::unwrap_err() const {
   if (is_ok()) {
     throw std::runtime_error("Result<T, E> does not contain Error");
@@ -265,7 +265,7 @@ const E& Result<T, E>::unwrap_err() const {
 
 //*   <--- functional methods  --->
 
-template <typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 template <typename Func> requires std::invocable<Func, T>
 auto Result<T, E>::fmap(Func&& fn)
   noexcept(std::is_nothrow_constructible_v<Result<std::invoke_result_t<Func, T>, E>> && std::is_nothrow_invocable_v<Func, T>)
@@ -279,7 +279,7 @@ auto Result<T, E>::fmap(Func&& fn)
   }
 }
 
-template<typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template<typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 template<typename Func> requires std::invocable<Func, E>
 auto Result<T, E>::fmap_err(Func&& fn) const
   noexcept(std::is_nothrow_constructible_v<Result<T, std::invoke_result_t<Func, E>>> && std::is_nothrow_invocable_v<Func, T>)
@@ -293,7 +293,7 @@ auto Result<T, E>::fmap_err(Func&& fn) const
   }
 }
 
-template<typename T, typename E> requires (!std::is_void_v<T> && Error<E>)
+template<typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 template <typename Func>
 requires std::invocable<Func, T>
 auto Result<T, E>::and_then(Func&& fn) const
@@ -315,4 +315,4 @@ static_assert(Functor<Result, int, std::function<double(int)>>, "Result should b
 static_assert(Monad<Result, int, std::function<Result<double, StrErr>(int)>>, "Result should be a Monad");
 #endif
 
-} // namespace 'tmn::err';
+} // namespace tmn;
