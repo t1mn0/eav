@@ -6,6 +6,7 @@ set(COMMON_INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/Error
     ${CMAKE_SOURCE_DIR}/Option
     ${CMAKE_SOURCE_DIR}/Result
+    ${CMAKE_SOURCE_DIR}/UniquePtr
     ${CMAKE_SOURCE_DIR}
 )
 
@@ -14,8 +15,11 @@ set(COMMON_LINK_LIBS
     GTest::gtest_main
 )
 
-add_library(TestUtils INTERFACE)
-target_include_directories(TestUtils INTERFACE
+add_library(TestUtils STATIC
+    Utils.cpp
+)
+
+target_include_directories(TestUtils PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -25,7 +29,7 @@ add_executable(ErrorTests
 )
 
 target_include_directories(ErrorTests PRIVATE ${COMMON_INCLUDE_DIRS})
-target_link_libraries(ErrorTests PRIVATE ${COMMON_LINK_LIBS})
+target_link_libraries(ErrorTests PRIVATE ${COMMON_LINK_LIBS} TestUtils)
 add_test(NAME ErrorTests COMMAND ErrorTests)
 
 add_executable(OptionTests
@@ -34,11 +38,20 @@ add_executable(OptionTests
 )
 
 target_include_directories(OptionTests PRIVATE ${COMMON_INCLUDE_DIRS})
-target_link_libraries(OptionTests PRIVATE ${COMMON_LINK_LIBS})
+target_link_libraries(OptionTests PRIVATE ${COMMON_LINK_LIBS} TestUtils)
 add_test(NAME OptionTests COMMAND OptionTests)
 
 add_executable(ResultTests Result/GeneralTestResult.cpp)
 
 target_include_directories(ResultTests PRIVATE ${COMMON_INCLUDE_DIRS})
-target_link_libraries(ResultTests PRIVATE ${COMMON_LINK_LIBS})
+target_link_libraries(ResultTests PRIVATE ${COMMON_LINK_LIBS} TestUtils)
 add_test(NAME ResultTests COMMAND ResultTests)
+
+add_executable(UniquePtrTests
+    UniquePtr/GeneralTestUniquePtr.cpp
+    UniquePtr/TestSpecializedUniquePtr.cpp
+)
+
+target_include_directories(UniquePtrTests PRIVATE ${COMMON_INCLUDE_DIRS})
+target_link_libraries(UniquePtrTests PRIVATE ${COMMON_LINK_LIBS} TestUtils)
+add_test(NAME UniquePtrTests COMMAND UniquePtrTests)

@@ -1,5 +1,5 @@
 #ifndef TMN_THROWLESS_UNIQUE_PTR_HPP
-#error "Include UniquePtr.hpp instead of UniquePtr.tpp"
+#error "Include UniquePtr.hpp instead of GeneralUniquePtr.tpp"
 #endif
 
 #include "UniquePtr.hpp"
@@ -15,7 +15,7 @@ template <typename T, typename Deleter>
 UniquePtr<T, Deleter>::UniquePtr(T* ptr) noexcept : resource_ptr(ptr), deleter() {}
 
 template <typename T, typename Deleter>
-template <typename U>
+template <typename U> requires (std::is_convertible_v<U*, T*>)
 UniquePtr<T, Deleter>::UniquePtr(U* ptr) noexcept : resource_ptr(ptr), deleter() {}
 
 template <typename T, typename Deleter>
@@ -26,20 +26,16 @@ UniquePtr<T, Deleter>::UniquePtr(UniquePtr&& oth) noexcept : resource_ptr(oth.re
 template <typename T, typename Deleter>
 UniquePtr<T, Deleter>& UniquePtr<T, Deleter>::operator=(UniquePtr&& oth) noexcept {
   if (this != &oth) {
-    deleter(resource_ptr);
-    resource_ptr = nullptr;
-    resource_ptr = oth.resource_ptr;
+    reset();
+    resource_ptr = std::exchange(oth.resource_ptr, nullptr);
     deleter = std::move(oth.deleter);
-    oth.resource_ptr = nullptr;
   }
   return *this;
 }
 
 template <typename T, typename Deleter>
 UniquePtr<T, Deleter>::~UniquePtr() {
-  if (has_resource()) {
-    deleter(resource_ptr);
-  }
+  reset();
 }
 
 //*   <--- methods  --->
@@ -66,12 +62,20 @@ T* UniquePtr<T, Deleter>::get_and_free() {
 
 template <typename T, typename Deleter>
 bool UniquePtr<T, Deleter>::set_resource(T* new_resource) noexcept {
-  if (!has_resource()) {
+  if (has_resource()) {
     return false;
   }
 
   resource_ptr = new_resource;
   return true;
+}
+
+template <typename T, typename Deleter>
+void UniquePtr<T, Deleter>::reset(T* new_resource) noexcept {
+  T* old_ptr = std::exchange(resource_ptr, new_resource);
+  if (old_ptr) {
+    deleter(old_ptr);
+  }
 }
 
 template <typename T, typename Deleter>
@@ -117,16 +121,15 @@ Option<T> UniquePtr<T, Deleter>::try_get_val() const noexcept {
 }
 
 template <typename T, typename Deleter>
-T UniquePtr<T, Deleter>::get_val() const {
-  if (!has_resource()) {
-    throw std::runtime_error("UniquePtr: no resource value");
-  }
+T& UniquePtr<T, Deleter>::operator*() & {
+  if (!has_resource()) throw std::runtime_error("UniquePtr: no resource to get");
   return *resource_ptr;
 }
 
 template <typename T, typename Deleter>
-T UniquePtr<T, Deleter>::operator*() const {
-  return get_val();
+const T& UniquePtr<T, Deleter>::operator*() const & {
+  if (!has_resource()) throw std::runtime_error("UniquePtr: no resource to get");
+  return *resource_ptr;
 }
 
 template <typename T, typename Deleter>

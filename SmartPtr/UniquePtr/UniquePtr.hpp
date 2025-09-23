@@ -4,6 +4,7 @@
 #include "../../Option/Option.hpp"
 
 #include <memory> // for: std::default_delete;
+#include <type_traits>
 
 namespace tmn {
 
@@ -20,25 +21,17 @@ private: //* fields:
   T* resource_ptr = nullptr;
   [[no_unique_address]] Deleter deleter;
 
-private: // friends:
-  template <typename U, typename E>
-  friend class UniquePtr;
-
-  friend void swap(UniquePtr<T>& first, UniquePtr<T>& second) noexcept(noexcept(first.swap(second))) {
-    first.swap(second);
-  }
-
 public: //* methods:
   //*   <--- constructors, (~)ro5, destructor ... --->
   UniquePtr() noexcept;
   explicit UniquePtr(T* resource_ptr) noexcept;
 
-  template <typename U>
+  template <typename U> requires (std::is_convertible_v<U*, T*>)
   explicit UniquePtr(U* resource_ptr) noexcept;
 
   // Explicitly prohibiting the reproduction of access to the UniquePtr resource:
-  UniquePtr(const UniquePtr& oth) = delete;
-  UniquePtr& operator=(const UniquePtr& oth) = delete;
+  UniquePtr(const UniquePtr&) = delete;
+  UniquePtr& operator=(const UniquePtr&) = delete;
 
   // But we allow the movement of the UniquePtr resource between owners:
   UniquePtr(UniquePtr<T, Deleter>&& oth) noexcept;
@@ -63,6 +56,12 @@ public: //* methods:
   // If ownership of the resource has been established, the method returns `true`:
   bool set_resource(T* new_resource) noexcept;
 
+  // This method is a combination of:
+  // 1. `get_and_free()`
+  // 2. `set_resource()` (if the `new_resource` pointer is specified)
+  // Between these two actions, deleter releases and destroys the old resource:
+  void reset(T* new_resource = nullptr) noexcept;
+
   // Returns pointers to the wrapped resource;
   // These methods may violate the basic idea of using unique pointers
   // and a small prototype of the concept of "ownership", which I adhere to here.
@@ -78,13 +77,21 @@ public: //* methods:
 
   Option<T> try_get_val() const noexcept;
 
-  // Returned object is a copy of the resource:
-  T get_val() const;
-
-  T operator*() const;
+  // Returned object is a reference of the resource value:
+  T& operator*() &;
+  const T& operator*() const&;
 
 private: //* methods:
   void swap(UniquePtr<T, Deleter>& oth) noexcept;
+
+
+private: // friends:
+  template <typename U, typename E>
+  friend class UniquePtr;
+
+  friend void swap(UniquePtr<T, Deleter>& first, UniquePtr<T, Deleter>& second) noexcept(noexcept(first.swap(second))) {
+    first.swap(second);
+  }
 
 }; // class UniquePtr<T, Deleter>;
 
@@ -92,7 +99,7 @@ private: //* methods:
 template <typename T>
 class UniquePtr<T[], std::default_delete<T[]>> {
 private: //* fields :
-  T* array_ptr;
+  T* array_ptr = nullptr;
   [[no_unique_address]] std::default_delete<T[]> deleter;
 
 public: //* methods:
@@ -100,8 +107,8 @@ public: //* methods:
   UniquePtr() noexcept;
   explicit UniquePtr(T* array_ptr) noexcept;
 
-  UniquePtr(const UniquePtr& oth) = delete;
-  UniquePtr& operator=(const UniquePtr& oth) = delete;
+  UniquePtr(const UniquePtr&) = delete;
+  UniquePtr& operator=(const UniquePtr&) = delete;
 
   UniquePtr(UniquePtr&& oth) noexcept;
   UniquePtr& operator=(UniquePtr&& oth) noexcept;
@@ -112,7 +119,11 @@ public: //* methods:
   [[nodiscard]] Option<T*> try_get_and_free() noexcept;
   [[nodiscard]] T* get_and_free();
 
-  bool set_resource() noexcept;
+  bool set_resource(T* new_resource) noexcept;
+  void reset(T* new_resource = nullptr) noexcept;
+
+  Option<T*> try_get() noexcept;
+  T* get();
 
   bool has_resource() const noexcept;
   explicit operator bool() const noexcept;
@@ -121,14 +132,23 @@ public: //* methods:
 
   // Observers:
   Option<T> try_get_val_at(std::size_t index) const noexcept;
-  T get_val_at(std::size_t index) const;
 
-  Option<T> operator[](std::size_t index) const noexcept;
+  T& operator[](std::size_t index) &;
+  const T& operator[](std::size_t index) const&;
+
+private:
+  void swap(UniquePtr& oth) noexcept;
+
+public: //* friends:
+  friend void swap(UniquePtr<T[]>& first, UniquePtr<T[]>& second) noexcept(noexcept(first.swap(second))) {
+    first.swap(second);
+  }
 
 }; // class UniquePtr<T[], std::default_delete<T[]>>;
 
 } // for: namespace tmn;
 
-#include "UniquePtr.tpp" // for: UniquePtr definition;
+#include "GeneralUniquePtr.tpp" // for: UniquePtr definition;
+#include "SpecializedUniquePtr.tpp" // for: UniquePtr definition;
 
 #endif // TMN_THROWLESS_UNIQUE_PTR_HPP
