@@ -32,6 +32,19 @@ public: //* methods:
   Result(Result&& oth) noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_constructible_v<E>);
   Result& operator=(const Result& oth) noexcept(std::is_nothrow_copy_constructible_v<T> && std::is_nothrow_copy_constructible_v<E>);
   Result& operator=(Result&& oth) noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_constructible_v<E>);
+
+  template<typename U, typename F> requires std::is_convertible_v<U, T> && std::is_convertible_v<F, E>
+  Result(const Result<U, F>& oth) noexcept(std::is_nothrow_constructible_v<T, U> && std::is_nothrow_constructible_v<E, F>);
+
+  template<typename U, typename F> requires std::is_convertible_v<U, T> && std::is_convertible_v<F, E>
+  Result(Result<U, F>&& oth) noexcept(std::is_nothrow_constructible_v<T, U> && std::is_nothrow_constructible_v<E, F>);
+
+  template<typename U, typename F> requires std::is_convertible_v<U, T> && std::is_convertible_v<F, E>
+  Result& operator=(const Result<U, F>& oth) noexcept(std::is_nothrow_assignable_v<T, U> && std::is_nothrow_assignable_v<E, F>);
+
+  template<typename U, typename F> requires std::is_convertible_v<U, T> && std::is_convertible_v<F, E>
+  Result& operator=(Result<U, F>&& oth) noexcept(std::is_nothrow_assignable_v<T, U> && std::is_nothrow_assignable_v<E, F>);
+
   ~Result();
 
   // Conversions (cast) :

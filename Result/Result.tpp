@@ -97,6 +97,94 @@ Result<T, E>::Result(Result&& oth)
   }
 }
 
+template<typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
+template<typename U, typename F> requires std::is_convertible_v<U, T> && std::is_convertible_v<F, E>
+Result<T, E>::Result(const Result<U, F>& oth)
+  noexcept(std::is_nothrow_constructible_v<T, U> && std::is_nothrow_constructible_v<E, F>)
+{
+  if (oth.is_ok()) {
+    new (&ok_val) T(oth.unwrap());
+    state = State::OkState;
+  }
+  else {
+    new (&err_val) E(oth.unwrap_err());
+    state = State::ErrState;
+  }
+}
+
+template<typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
+template<typename U, typename F> requires std::is_convertible_v<U, T> && std::is_convertible_v<F, E>
+Result<T, E>::Result(Result<U, F>&& oth)
+  noexcept(std::is_nothrow_constructible_v<T, U> && std::is_nothrow_constructible_v<E, F>)
+{
+  if (oth.is_ok()) {
+    new (&ok_val) T(std::move(oth).unwrap_value());
+    state = State::OkState;
+  }
+  else {
+    new (&err_val) E(std::move(oth).unwrap_err());
+    state = State::ErrState;
+  }
+}
+
+template<typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
+template<typename U, typename F> requires std::is_convertible_v<U, T> && std::is_convertible_v<F, E>
+auto Result<T, E>::operator=(const Result<U, F>& oth)
+  noexcept(std::is_nothrow_assignable_v<T, U> && std::is_nothrow_assignable_v<E, F>)
+  -> Result<T, E>&
+{
+  if (this == &oth) {
+    return *this;
+  }
+
+  if (state == State::OkState) {
+    ok_val.~T();
+  }
+  else if (state == State::ErrState) {
+    err_val.~E();
+  }
+
+  state = oth.state;
+  if (state == State::OkState) {
+    new (&ok_val) T(oth.ok_val);
+  }
+  else if (state == State::ErrState) {
+    new (&err_val) E(oth.err_val);
+  }
+
+  return *this;
+}
+
+template<typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
+template<typename U, typename F> requires std::is_convertible_v<U, T> && std::is_convertible_v<F, E>
+auto Result<T, E>::operator=(Result<U, F>&& oth)
+  noexcept(std::is_nothrow_assignable_v<T, U> && std::is_nothrow_assignable_v<E, F>)
+  -> Result<T, E>&
+{
+  if (this == &oth) {
+    return *this;
+  }
+
+  if (state == State::OkState) {
+    ok_val.~T();
+  }
+  else if (state == State::ErrState) {
+    err_val.~E();
+  }
+
+  state = oth.state;
+  if (state == State::OkState) {
+    new (&ok_val) T(std::move(oth.ok_val));
+    oth.ok_val.~T();
+  }
+  else if (state == State::ErrState) {
+    new (&err_val) E(std::move(oth.err_val));
+    oth.err_val.~E();
+  }
+
+  return *this;
+}
+
 template <typename T, typename E> requires (!std::is_void_v<T> && err::Error<E>)
 Result<T,E>& Result<T, E>::operator=(const Result<T,E>& oth)
   noexcept(std::is_nothrow_copy_constructible_v<T> && std::is_nothrow_copy_constructible_v<E>)
