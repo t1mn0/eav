@@ -19,25 +19,43 @@ __throwless__ is lightweight *C++20* (nearly) header-only library for functional
 
 ## Quick Example
 ```cpp
-#include <iostream>
-#include <string>
+using namespace tmn;
 
-#include "libs/throwless/Option/Option.hpp"
+struct Config {
+  std::string host;
+  int port;
+  tmn::Option<int> timeout_ms;
+};
 
-tmn::err::Option<std::string> find_user_name(int user_id) {
-  if (user_id == 1) return std::string("Alice");
-  if (user_id == 2) return std::string("Bob");
-  return tmn::err::None<std::string>();
+tmn::Result<Config, err::AnyParseErr> parse_config(const std::string& json_str) {
+  auto host_result = extract_host(json_str);
+  auto port_result = extract_port(json_str);
+
+  auto func = [&]() -> Config {
+    return Config {
+      .host = host_result.unwrap_value(),
+      .port = port_result.unwrap_value(),
+      .timeout_ms = extract_timeout(json_str).to_option()
+    };
+  };
+
+  return tmn::try_or_convert(func);
 }
 
 int main() {
-  auto name = find_user_name(3)
-    .fmap([](auto s) { return "Hello, " + s + "!"; })
-    .or_else([&]() {
-      return std::string("User not found");
-    });
+  auto config = parse_config(R"({"host": "localhost", "port": 8080})");
 
-  std::cout << name.value() << std::endl;
+  if (config.is_ok()) {
+    std::cout << "Host: " << config.unwrap_value().host << std::endl;
+    std::cout << "Port: " << config.unwrap_value().port << std::endl;
+    std::cout << "Timeout: ";
+    std::cout << config.unwrap_value().timeout_ms.value_or(-1) << std::endl;
+  }
+  else {
+    std::cerr << "Config error: " << config.unwrap_err().err_msg() << std::endl;
+  }
+
+  return 0;
 }
 ```
 
@@ -74,8 +92,8 @@ ctest --output-on-failure
 
 ## Roadmap
 Planned:
-- More Error variations (minimum to cover all `std::exceptions`);
-- A more precise hierarchy of errors that will allow them to be handled polymorphically (+ definitions and declarations of the corresponding Err-classes should be divided into files according to the hierarchies). Any user, if necessary, can use custom Errors to create their own version of the _throwless_-compatible error library;
+- More `Error` variations (minimum to cover all `std::exceptions`);
+- A more precise hierarchy of errors that will allow them to be handled polymorphically (+ definitions and declarations of the corresponding `Error`-classes should be divided into files according to the hierarchies). Any user, if necessary, can use custom Errors to create their own version of the _throwless_-compatible error library;
 - Add `Make-` factories-functions (`MakeUniquePtr`, `MakeShared`, etc)
 - `SharedFromThis` functionality;
 - To develop a global strategy for handling the presented classes with the template type `T=void` and other specific types;

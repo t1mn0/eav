@@ -153,7 +153,7 @@ bool SharedPtr<T>::is_unique() const noexcept {
 template<typename T>
 void SharedPtr<T>::reset(T* new_resource_ptr) {
   cleanup();
-  if (new_resource_ptr) {
+  if (new_resource_ptr != nullptr) {
     resource_ptr = new_resource_ptr;
     control_block = new ControlBlock<T>(new_resource_ptr);
   }
@@ -167,6 +167,7 @@ void SharedPtr<T>::reset(T* new_resource_ptr, Deleter deleter) {
     resource_ptr = new_resource_ptr;
     control_block = new ControlBlock<T>(new_resource_ptr, std::move(deleter));
   }
+  resource_ptr = new_resource_ptr;
 }
 
 // The equality of two sharedptrs is understood as equality:

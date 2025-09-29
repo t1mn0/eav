@@ -27,7 +27,7 @@ auto try_or_convert(Fn&& fn, Args&&... args) -> Result<std::invoke_result_t<Fn, 
   }
 }
 
-} // namespace tmn::err;
+} // namespace tmn;
 
 #include "../Result/Result.hpp"
 

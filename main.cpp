@@ -1,36 +1,66 @@
 #include <iostream>
-#include <string>
 
+#include "Error/Error.hpp"
+#include "Error/TryOrConvert.hpp"
 #include "Option/Option.hpp"
-#include "SmartPtr/UniquePtr/UniquePtr.hpp"
-#include "SmartPtr/SharedPtr/SharedPtr.hpp"
+#include "Result/Result.hpp"
 
-tmn::Option<std::string> find_user_name(int user_id) {
-  if (user_id == 1) return std::string("Alice");
-  if (user_id == 2) return std::string("Bob");
-  return tmn::None<std::string>();
+using namespace tmn;
+
+// You can determine the type of your Errors by yourself,
+// depending on the specifics of the your project:
+using FailedHostExtracting = err::StrErr;
+using FailedPortExtracting = err::StrErr;
+using FailedTimeoutExtracting = err::StrErr;
+
+// Just stopper:
+Result<std::string, FailedHostExtracting> extract_host(const std::string& json_str){
+  return Result<std::string, FailedHostExtracting>::Ok("webserver.example.com");
+}
+
+Result<int, FailedPortExtracting> extract_port(const std::string& json_str){
+  return Result<int, FailedPortExtracting>::Ok(8080);
+  // return Result<int, FailedPortExtracting>::Err("Bad port");
+}
+
+Result<int, FailedTimeoutExtracting> extract_timeout(const std::string& json_str){
+  // return Result<int, FailedTimeoutExtracting>::Ok(1200);
+   return Result<int, FailedTimeoutExtracting>::Err("Bad timeout");
+}
+
+struct Config {
+  std::string host;
+  int port;
+  tmn::Option<int> timeout_ms;
+};
+
+tmn::Result<Config, err::AnyErr> parse_config(const std::string& json_str) {
+  auto host_result = extract_host(json_str);
+  auto port_result = extract_port(json_str);
+
+  auto func = [&]() -> Config {
+    return Config {
+      .host = host_result.unwrap_value(),
+      .port = port_result.unwrap_value(),
+      .timeout_ms = extract_timeout(json_str).to_option()
+    };
+  };
+
+  return tmn::try_or_convert(func);
 }
 
 int main() {
-  auto name = find_user_name(3)
-    .fmap([](auto s) { return "Hello, " + s + "!"; })
-    .or_else([&]() {
-      return std::string("User not found");
-    });
+  auto config = parse_config(R"({"host": "localhost", "port": 8080})");
 
-  if (name.has_value()){
-    std::string* name_on_heap = new std::string(name.value());
-    tmn::UniquePtr<std::string> up(name_on_heap);
-    // some operations with unique pointer;
-    // ...
-    std::string* backup_on_heap = new std::string("Object wasnt constructed");
-    std::cout << *up.try_get().value_or(backup_on_heap) << std::endl; // cout: User not found;
+  if (config.is_ok()) {
+    std::cout << "Host: " << config.unwrap_value().host << std::endl;
+    std::cout << "Port: " << config.unwrap_value().port << std::endl;
+    std::cout << "Timeout: ";
+    std::cout << config.unwrap_value().timeout_ms.value_or(-1) << std::endl;
   }
-
-  // - - - - - - - - - - - - - - - - - - - - - - -
-  tmn::SharedPtr<std::string[]> ptr1(new std::string[2]{"qwerty", "dvorak"}, 2);
-  tmn::SharedPtr<std::string[]> ptr2 = ptr1;
-  std::cout << ptr1.use_count() << std::endl; // cout: 2;
+  else {
+    std::cerr << "Config error: " << config.unwrap_err().err_msg() << std::endl;
+  }
 
   return 0;
 }
