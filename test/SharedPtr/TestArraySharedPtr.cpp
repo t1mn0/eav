@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../../SmartPtr/SharedPtr/SharedPtr.hpp"
+#include "../../include/SmartPtr/SharedPtr.hpp"
 #include "../_TestUtils/Utils.hpp"
 
 class SharedPtrArrayTest : public ::testing::Test {

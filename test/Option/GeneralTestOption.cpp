@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "../../Option/Option.hpp"
-#include "../../Error/Error.hpp"
+#include "../../include/Option/Option.hpp"
+#include "../../include/Error/Error.hpp"
 #include "../_TestUtils/RandomGenerator.hpp"
 
 class OptionDefaultConstructorFixture : public ::testing::Test {

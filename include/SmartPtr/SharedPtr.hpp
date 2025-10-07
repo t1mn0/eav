@@ -1,8 +1,8 @@
 #ifndef TMN_THROWLESS_SHARED_PTR_HPP
 #define TMN_THROWLESS_SHARED_PTR_HPP
 
-#include "ControlBlock.hpp"
-#include "../../Option/Option.hpp"
+#include "../../src/SmartPtr/SharedPtr/ControlBlock.hpp"
+#include "../Option/Option.hpp"
 
 namespace tmn {
 
@@ -88,8 +88,8 @@ public:
 
 } // namespace tmn;
 
-#include "ArraySharedPtr.hpp"
-#include "SharedPtr.tpp"
-#include "../WeakPtr/WeakPtr.hpp"
+#include "../../src/SmartPtr/SharedPtr/ArraySharedPtr.hpp"
+#include "../../src/SmartPtr/SharedPtr/SharedPtr.tpp"
+#include "WeakPtr.hpp"
 
 #endif // TMN_THROWLESS_SHARED_PTR_HPP

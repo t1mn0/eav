@@ -2,7 +2,7 @@
 #error "Include SharedPtr.hpp instead of SharedPtr.tpp"
 #endif
 
-#include "SharedPtr.hpp"
+#include "../../../include/SmartPtr/SharedPtr.hpp"
 
 #include <utility>
 

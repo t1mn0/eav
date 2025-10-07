@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../../SmartPtr/WeakPtr/WeakPtr.hpp"
+#include "../../include/SmartPtr/WeakPtr.hpp"
 #include "../_TestUtils/Utils.hpp"
 
 #include <gtest/gtest.h>

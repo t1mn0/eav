@@ -124,6 +124,6 @@ private: //* friends:
 
 } // for: namespace tmn;
 
-#include "Result.tpp" // for: Result definition;
+#include "../../src/Result/Result.tpp" // for: Result definition;
 
 #endif // TMN_THROWLESS_RESULT_HPP

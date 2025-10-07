@@ -1,7 +1,7 @@
 #ifndef TMN_THROWLESS_UNIQUE_PTR_HPP
 #define TMN_THROWLESS_UNIQUE_PTR_HPP
 
-#include "../../Option/Option.hpp"
+#include "../Option/Option.hpp"
 
 #include <memory> // for: std::default_delete;
 #include <type_traits>
@@ -104,7 +104,7 @@ private: // friends:
 
 } // for: namespace tmn;
 
-#include "ArrayUniquePtr.hpp"
-#include "UniquePtr.tpp" // for: UniquePtr<T> definition;
+#include "../../src/SmartPtr/UniquePtr/ArrayUniquePtr.hpp"
+#include "../../src/SmartPtr/UniquePtr/UniquePtr.tpp" // for: UniquePtr<T> definition;
 
 #endif // TMN_THROWLESS_UNIQUE_PTR_HPP

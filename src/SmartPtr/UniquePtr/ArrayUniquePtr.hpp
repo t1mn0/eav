@@ -2,9 +2,9 @@
 #error "Include UniquePtr.hpp instead of ArrayUniquePtr.hpp"
 #endif
 
-#include "UniquePtr.hpp"
-#include "../../Result/Result.hpp"
-#include "../../Error/Error.hpp"
+#include "../../../include/SmartPtr/UniquePtr.hpp"
+#include "../../../include/Result/Result.hpp"
+#include "../../../include/Error/Error.hpp"
 
 namespace tmn {
 

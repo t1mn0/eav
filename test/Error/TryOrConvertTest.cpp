@@ -3,8 +3,8 @@
 #include <stdexcept>
 #include <string>
 
-#include "../../Error/TryOrConvert.hpp"
-#include "../../Error/Error.hpp"
+#include "../../include/Error/TryOrConvert.hpp"
+#include "../../include/Error/Error.hpp"
 
 TEST(TryOrConvertTest, BasicFunctionality) {
   auto success_fn = [](int x) -> int { return x*42; };

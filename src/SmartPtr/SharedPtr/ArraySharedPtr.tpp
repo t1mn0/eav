@@ -2,7 +2,7 @@
 #error "Definition of the class must follow the declaration of the class"
 #endif
 
-#include "SharedPtr.hpp"
+#include "../../../include/SmartPtr/SharedPtr.hpp"
 #include <cassert>
 #include <utility>
 

@@ -2,7 +2,7 @@
 #error "Specialization of a class must follow the declaration of the main class template"
 #endif
 
-#include "WeakPtr.hpp"
+#include "../../../include/SmartPtr/WeakPtr.hpp"
 
 namespace tmn {
 

@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "../../Option/Option.hpp"
+#include "../../include/Option/Option.hpp"
 #include "../_TestUtils/RandomGenerator.hpp"
 
 class OptionArithmeticTestFixture : public ::testing::Test {

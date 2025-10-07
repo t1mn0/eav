@@ -5,8 +5,8 @@
 #include <stdexcept> // for: runtime_error;
 #include <utility> // for: move;
 
-#include "Result.hpp"
-#include "../Error/ErrorConcept.hpp"
+#include "../../include/Result/Result.hpp"
+#include "../../include/Error/ErrorConcept.hpp"
 
 namespace tmn {
 

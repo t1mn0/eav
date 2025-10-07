@@ -1,7 +1,7 @@
 #ifndef TMN_THROWLESS_WEAK_PTR_HPP
 #define TMN_THROWLESS_WEAK_PTR_HPP
 
-#include "../SharedPtr/SharedPtr.hpp"
+#include "SharedPtr.hpp"
 
 #include <type_traits>  // for: std::is_convertible_v;
 
@@ -64,7 +64,7 @@ public: //* fields:
 
 } // for: namespace tmn;
 
-#include "WeakPtr.tpp"
-#include "ArrayWeakPtr.hpp"
+#include "../../src/SmartPtr/WeakPtr/WeakPtr.tpp"
+#include "../../src/SmartPtr/WeakPtr/ArrayWeakPtr.hpp"
 
 #endif // TMN_THROWLESS_WEAK_PTR_HPP

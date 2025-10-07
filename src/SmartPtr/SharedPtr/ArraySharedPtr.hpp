@@ -2,10 +2,10 @@
 #error "Specialization of a class must follow the declaration of the main class template"
 #endif
 
-#include "SharedPtr.hpp"
+#include "../../../include/SmartPtr/SharedPtr.hpp"
 #include "ArrayControlBlock.hpp"
-#include "../../Result/Result.hpp"
-#include "../../Error/Error.hpp"
+#include "../../../include/Result/Result.hpp"
+#include  "../../../include/Error/Error.hpp"
 
 namespace tmn {
 

@@ -9,7 +9,7 @@ of the SmartPtr mechanism and is not intended for use"
 #endif
 
 #include "ControlBlock.hpp"
-#include "../../Error/Error.hpp"
+#include "../../../include/Error/Error.hpp"
 
 namespace tmn {
 

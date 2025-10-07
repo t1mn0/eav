@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../../SmartPtr/UniquePtr/UniquePtr.hpp"
+#include "../../include/SmartPtr/UniquePtr.hpp"
 #include "../_TestUtils/Utils.hpp"
 
 class UniquePtrFixture : public ::testing::Test {

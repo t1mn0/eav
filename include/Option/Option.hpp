@@ -4,7 +4,7 @@
 #include <concepts> // for: default_initializable, invocable;
 #include <type_traits> // for is_nothrow_constructible;
 
-#include "../Concepts/Concepts.hpp"
+#include "../../src/Concepts/Concepts.hpp"
 #include "../Error/ErrorConcept.hpp"
 
 namespace tmn {
@@ -122,8 +122,8 @@ Option<T> Some(T val) noexcept(std::is_nothrow_move_constructible_v<T>);
 
 } // namespace tmn;
 
-#include "Option.tpp" // for: Option definition;
-#include "CoproductOperations.hpp" // for: external monoid functions for Option objects;
+#include "../../src/Option/Option.tpp" // for: Option definition;
+#include "../../src/Option/CoproductOperations.hpp" // for: external monoid functions for Option objects;
 #include "../Result/Result.hpp" // for: implementation of the Result class, which was previously declared forward;
 
 #endif // TMN_THROWLESS_OPTION_HPP

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "../../SmartPtr/WeakPtr/WeakPtr.hpp"
-#include "../../SmartPtr/SharedPtr/SharedPtr.hpp"
+#include "../../include/SmartPtr/WeakPtr.hpp"
+#include "../../include/SmartPtr/SharedPtr.hpp"
 #include "../_TestUtils/Utils.hpp"
 
 class WeakPtrArrayTest : public ::testing::Test {

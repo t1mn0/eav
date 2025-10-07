@@ -2,7 +2,7 @@
 #error "Include UniquePtr.hpp instead of SpecializedUniquePtr.tpp"
 #endif
 
-#include "UniquePtr.hpp"
+#include "../../../include/SmartPtr/UniquePtr.hpp"
 
 namespace tmn {
 

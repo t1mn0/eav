@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../../Error/Error.hpp"
+#include "../../include/Error/Error.hpp"
 
 class ExceptionErrFixture : public ::testing::Test {
 protected: //* structs and fields:
