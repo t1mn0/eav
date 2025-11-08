@@ -9,11 +9,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
-    - name: installing dependencies
-      run: |
-        apt update -y
-        apt install -y g++ make
-        make
+  #  - name: installing dependencies
+  #   run: |
+  #      apt update -y
+  #     apt install -y g++ make
     - name: build_test
       run: make
       
