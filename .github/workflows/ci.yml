@@ -21,6 +21,9 @@ jobs:
       run: |
         cmake -B build -S .
         cmake --build build
+
+    - name: Fix permissions before upload
+      run: chmod +x build/test/*
         
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -39,6 +42,9 @@ jobs:
         with:
           name: build-folder
           path: build/
+
+      - name: Fix permissions after download
+        run: chmod +x build/test/*
         
       - name: Run tests
         run: ctest --test-dir build --output-on-failure
