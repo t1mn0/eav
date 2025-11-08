@@ -1,3 +1,5 @@
+name: CI Pipeline
+
 on:
   push:
     branches: [ "main" ]
@@ -9,18 +11,21 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
-    - name: installing dependencies
+    
+    - name: Install dependencies
       run: |
+        sudo apt update -y
         sudo apt install -y g++ make cmake libgtest-dev
-  #      apt update -y
-  #     apt install -y g++ make
-    - name: build_test
-      run: cmake -B build -S . && cmake --build ${{github.workspace}}/build
-
-    - name: Upload test binaries
+        
+    - name: Configure and build
+      run: |
+        cmake -B build -S .
+        cmake --build build
+        
+    - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: test-binaries
+        name: build-folder
         path: build/
         retention-days: 7
       
@@ -29,11 +34,11 @@ jobs:
     needs: build_test
 
     steps:
-      - name: Download test binaries
+      - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: test-binaries
+          name: build-folder
+          path: build/
         
-      - name: run tests
-        working-directory: ${{github.workspace}}/build
-        run: ctest --output-on-failure
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
