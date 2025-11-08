@@ -15,7 +15,7 @@ jobs:
   #      apt update -y
   #     apt install -y g++ make
     - name: build_test
-      run: cmake . && cmake --build ${{github.workspace}}/build
+      run: cmake -B build -S . && cmake --build ${{github.workspace}}/build
       
   run_tests:
     runs-on: ubuntu-24.04
