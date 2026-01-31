@@ -18,7 +18,7 @@ struct ErrHolder {
 
 }  // namespace eav::detail
 
-namespace eav::make::result {
+namespace eav::make {
 
 template <typename T>
 detail::OkHolder<T> Ok(T&& val) {
@@ -40,4 +40,4 @@ detail::ErrHolder<E> Err(Args&&... args) {
     return E{std::forward<Args>(args)...};
 }
 
-}  // namespace eav::make::result
+}  // namespace eav::make
