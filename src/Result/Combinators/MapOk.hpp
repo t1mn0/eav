@@ -9,12 +9,13 @@ namespace eav::combine {
 namespace pipe {
 
 template <typename F>
-struct Map {
+struct MapOk {
+    // func_: Result<T, E> -> (T -> U) -> Result<U, E>
     F func_;
 
-    explicit Map(F f) : func_(std::move(f)) {}
+    explicit MapOk(F f) : func_(std::move(f)) {}
 
-    template <typename T, typename E>
+    template <typename T, typename E> requires std::invocable<F, T>
     auto Pipe(Result<T, E>&& res) {
         using U = std::invoke_result_t<F, T>;
 
@@ -29,8 +30,8 @@ struct Map {
 }  // namespace pipe
 
 template <typename F>
-auto Map(F&& func) {
-    return pipe::Map<std::decay_t<F>>{std::forward<F>(func)};
+auto MapOk(F&& func) {
+    return pipe::MapOk<std::decay_t<F>>{std::forward<F>(func)};
 }
 
 }  // namespace eav::combine
