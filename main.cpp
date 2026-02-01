@@ -1,9 +1,7 @@
 #include <iostream>
 #include <string>
 
-#include "src/Result/Combinators/MapOk.hpp"
-#include "src/Result/Pipe.hpp"
-#include "src/Result/Result.hpp"
+#include <eav/Result.hpp>
 
 using namespace eav;
 
@@ -30,13 +28,10 @@ int main() {
     }
 
     auto chain2 = GetValue(false)
-        | combine::MapOk([](int v) {
-                std::cout << "This will not be printed" << std::endl;
-                return v + 1;
-            })
-        | combine::MapOk([](int v) {
-                return std::to_string(v);
-            });
+                | combine::MapOk([](int v) {
+                    std::cout << "This will not be printed" << std::endl;
+                    return v + 1; })
+                | combine::MapOk([](int v) { return std::to_string(v); });
 
     if (chain2.is_err()) {
         auto err = std::move(chain2).unwrap_err();

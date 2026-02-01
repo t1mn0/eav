@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../../Result.hpp"
 #include "../Concepts/IsResult.hpp"
-#include "../Result.hpp"
 
 #include <functional>
 
@@ -15,15 +15,15 @@ struct OrElse {
     F func_;
 
     template <typename T, typename E>
-    requires std::invocable<F, E> && concepts::IsResult<std::invoke_result_t<F, T>>
+    requires std::invocable<F, E> && concepts::IsResult<std::invoke_result_t<F, E>>
     auto Pipe(Result<T, E>&& res) {
         using NextResultT = std::invoke_result_t<F, E>;
 
         if (res.is_err()) {
             return std::invoke(std::move(func_), std::move(res).unwrap_err());
-        } else {
-            return NextResultT(make::Ok(std::move(res).unwrap_ok()));
         }
+
+        return NextResultT(make::Ok(std::move(res).unwrap_ok()));
     }
 };
 

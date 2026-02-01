@@ -4,8 +4,21 @@
 #include <type_traits>  // std::is_void_v
 #include <variant>
 
-#include "Concepts/IsError.hpp"
-#include "Make.hpp"
+#include "Result/Concepts/IsError.hpp"
+
+namespace eav {
+
+template <typename T, concepts::IsError E> requires(!std::is_void_v<T>)
+class Result;
+
+namespace make {
+
+template <typename T> Result<T, detail::PendingType> Ok(T&& val);
+template <concepts::IsError E> Result<detail::PendingType, E> Err(E&& val);
+
+}  // namespace make
+
+}  // namespace eav
 
 namespace eav {
 
@@ -25,11 +38,12 @@ class [[nodiscard]] Result {
     Result(const Result<T, E>&) = default;
     Result(Result<T, E>&&) = default;
 
-    template <typename U>
-    Result(detail::OkHolder<U>&& ok);
-
-    template <typename U>
-    Result(detail::ErrHolder<U>&& err);
+    template <typename U, typename R>
+    requires(
+        (std::same_as<U, T> || std::same_as<U, detail::PendingType>) &&
+        (std::same_as<R, E> || std::same_as<R, detail::PendingType>) &&
+        !(std::same_as<U, T> && std::same_as<R, E>))
+    Result(Result<U, R>&& oth);
 
     ~Result() = default;
 
@@ -59,8 +73,24 @@ class [[nodiscard]] Result {
 
     // [TODO]: Option Conversion
     // Option<T> erase_err() &;
+
+  private:  // member functions:
+    Result(detail::OkTag, T&& val);
+    Result(detail::ErrTag, E&& val);
+
+  private:  // friends:
+    template <typename U>
+    friend Result<U, detail::PendingType> make::Ok(U&&);
+
+    template <concepts::IsError R>
+    friend Result<detail::PendingType, R> make::Err(R&&);
 };
 
 }  // namespace eav
 
-#include "Impl/Result.hpp"
+#include "Result/Combinators/AndThen.hpp"
+#include "Result/Combinators/MapOk.hpp"
+#include "Result/Combinators/OrElse.hpp"
+#include "Result/Detail/ResultImpl.hpp"
+#include "Result/Make.hpp"
+#include "Result/Pipe.hpp"

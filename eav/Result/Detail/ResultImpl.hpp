@@ -3,19 +3,39 @@
 #include <stdexcept>
 #include <utility>
 
-#include "../Result.hpp"
+#include "../../Result.hpp"
 
 namespace eav {
 
 // --- Constructors ---
 
 template <typename T, concepts::IsError E> requires(!std::is_void_v<T>)
-template <typename U>
-Result<T, E>::Result(detail::OkHolder<U>&& ok) : value_(std::in_place_index<0>, std::forward<U>(ok.val_)) {}
+Result<T, E>::Result(detail::OkTag, T&& val) : value_(std::in_place_index<0>, std::move(val)) {}
 
 template <typename T, concepts::IsError E> requires(!std::is_void_v<T>)
-template <typename U>
-Result<T, E>::Result(detail::ErrHolder<U>&& err) : value_(std::in_place_index<1>, std::forward<U>(err.val_)) {}
+Result<T, E>::Result(detail::ErrTag, E&& val) : value_(std::in_place_index<1>, std::move(val)) {}
+
+template <typename T, concepts::IsError E> requires(!std::is_void_v<T>)
+template <typename U, typename R>
+requires(
+    (std::same_as<U, T> || std::same_as<U, detail::PendingType>) &&
+    (std::same_as<R, E> || std::same_as<R, detail::PendingType>) &&
+    !(std::same_as<U, T> && std::same_as<R, E>))
+Result<T, E>::Result(Result<U, R>&& oth) {
+    if (oth.is_ok()) {
+        if constexpr (!std::same_as<U, detail::PendingType>) {
+            value_.template emplace<0>(std::move(oth).unwrap_ok());
+        } else {
+            throw std::runtime_error("eav::Result: Attempted to move ok-value from PendingType");
+        }
+    } else {
+        if constexpr (!std::same_as<R, detail::PendingType>) {
+            value_.template emplace<1>(std::move(oth).unwrap_err());
+        } else {
+            throw std::runtime_error("eav::Result: Attempted to move err-value from PendingType");
+        }
+    }
+}
 
 // --- Operators ---
 

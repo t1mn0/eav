@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../../Result.hpp"
 #include "../Concepts/IsResult.hpp"
-#include "../Result.hpp"
 
 #include <functional>
 
@@ -11,7 +11,6 @@ namespace pipe {
 
 template <typename F>
 struct AndThen {
-    // func_: Result<T, E> -> (T -> Result<U, E>) -> Result<U, E>
     F func_;
 
     template <typename T, typename E>
@@ -21,9 +20,8 @@ struct AndThen {
 
         if (res.is_ok()) {
             return std::invoke(std::move(func_), std::move(res).unwrap_ok());
-        } else {
-            return NextResultT(make::Err(std::move(res).unwrap_err()));
         }
+        return NextResultT(make::Err(std::move(res).unwrap_err()));
     }
 };
 
