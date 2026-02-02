@@ -1,0 +1,45 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build_test:
+    runs-on: ubuntu-24.04
+
+    strategy:
+      matrix:
+        compiler: [gcc-12, clang-15]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          if [ "${{ matrix.compiler }}" = "gcc-12" ]; then
+            sudo apt-get install -y g++-12
+            echo "CC=gcc-12" >> $GITHUB_ENV
+            echo "CXX=g++-12" >> $GITHUB_ENV
+          else
+            sudo apt-get install -y clang-15
+            echo "CC=clang-15" >> $GITHUB_ENV
+            echo "CXX=clang++-15" >> $GITHUB_ENV
+          fi
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Run Tests
+        working-directory: build
+        run: ctest --output-on-failure
