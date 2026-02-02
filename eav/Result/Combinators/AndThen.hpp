@@ -16,7 +16,7 @@ template <typename F>
 struct AndThen {
     F func_;
 
-    template <typename T, typename E>
+    template <typename T, concepts::IsError E>
     requires std::invocable<F, T> && concepts::IsResult<std::invoke_result_t<F, T>>
     auto Pipe(Result<T, E>&& res) {
         using NextResultT = std::invoke_result_t<F, T>;
@@ -25,6 +25,11 @@ struct AndThen {
             return std::invoke(std::move(func_), std::move(res).unwrap_ok());
         }
         return NextResultT(make::Err(std::move(res).unwrap_err()));
+    }
+
+    template <concepts::IsError E>
+    auto Pipe(Result<detail::PendingType, E>&& res) {
+        return res;
     }
 };
 

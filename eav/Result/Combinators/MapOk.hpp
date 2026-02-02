@@ -8,7 +8,7 @@ namespace eav::combine {
 
 namespace pipe {
 
-//                 ( func_ )
+//                 (  func_ )
 // Result<T, E> -> ( T -> U ) -> Result<U, E>
 
 template <typename F>
@@ -17,7 +17,7 @@ struct MapOk {
 
     explicit MapOk(F&& f) : func_(std::move(f)) {}
 
-    template <typename T, typename E> requires std::invocable<F, T>
+    template <typename T, concepts::IsError E> requires std::invocable<F, T>
     auto Pipe(Result<T, E>&& res) {
         using U = std::invoke_result_t<F, T>;
 
@@ -26,6 +26,11 @@ struct MapOk {
         }
 
         return Result<U, E>(make::Err(std::move(res).unwrap_err()));
+    }
+
+    template <concepts::IsError E>
+    auto Pipe(Result<detail::PendingType, E>&& res) {
+        return std::move(res);
     }
 };
 

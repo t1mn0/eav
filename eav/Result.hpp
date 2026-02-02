@@ -4,6 +4,7 @@
 #include <variant>
 
 #include "Result/Concepts/IsError.hpp"
+#include "Result/Concepts/IsResult.hpp"
 #include "Result/Detail/Tags.hpp"
 #include "Result/FwdDecl/Err.hpp"
 #include "Result/FwdDecl/Ok.hpp"
@@ -88,6 +89,8 @@ class [[nodiscard]] Result {
 
 // for including 'Result' "module" via '#include <eav/Result.hpp>':
 #include "Result/Combinators/AndThen.hpp"
+#include "Result/Combinators/Filter.hpp"
+#include "Result/Combinators/MapErr.hpp"
 #include "Result/Combinators/MapOk.hpp"
 #include "Result/Combinators/OrElse.hpp"
 #include "Result/Detail/ResultImpl.hpp"

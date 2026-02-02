@@ -5,7 +5,7 @@
 using namespace eav;
 
 // clang-format off
-TEST(CombinatorTest, MapOkChain) {
+TEST(CombinatorTest, OkMapOkChain) {
     auto res = make::Ok(10)
         | combine::MapOk([](int x) { return x * 2; })
         | combine::MapOk([](int x) { return std::to_string(x); });
@@ -14,24 +14,44 @@ TEST(CombinatorTest, MapOkChain) {
     EXPECT_EQ(res.unwrap_ok(), "20");
 }
 
-TEST(CombinatorTest, AndThenSuccess) {
-    auto res = make::Ok(10) | combine::AndThen([](int x) -> Result<std::string, int> { return make::Ok(std::to_string(x)); });
+TEST(CombinatorTest, ErrMapOkChain) {
+    auto res = make::Err(10)
+        | combine::MapOk([](int x) { return x * 2; });
+
+    EXPECT_TRUE(res.is_err());
+    EXPECT_EQ(res.unwrap_err(), 10);
+}
+
+TEST(CombinatorTest, OkAndThenChain) {
+    auto res = make::Ok(10)
+        | combine::AndThen([](int x) -> Result<std::string, int> { return make::Ok(std::to_string(x)); });
 
     EXPECT_TRUE(res.is_ok());
     EXPECT_EQ(res.unwrap_ok(), "10");
 }
 
-TEST(CombinatorTest, AndThenFailure) {
-    auto res = make::Ok(10)
-        | combine::AndThen([](int) -> Result<std::string, int> { return make::Err(500); })
-        | combine::MapOk([](const std::string&) { return 0; });
+TEST(CombinatorTest, ErrAndThenChain) {
+    auto res = make::Err(10)
+        | combine::AndThen([](int) -> Result<std::string, int> { return make::Err(500); });
 
     EXPECT_TRUE(res.is_err());
-    EXPECT_EQ(res.unwrap_err(), 500);
+    EXPECT_EQ(res.unwrap_err(), 10);
 }
 
-TEST(CombinatorTest, OrElseRecovery) {
-    auto res = make::Err(404) | combine::OrElse([](int err) -> Result<int, std::string> {
+TEST(CombinatorTest, OkOrElseChain) {
+    auto res = make::Ok(42)
+        | combine::OrElse([](int err) -> Result<int, std::string> {
+            if (err == 404) return make::Ok(0);
+            return make::Err(std::string("fatal"));
+        });
+
+    EXPECT_TRUE(res.is_ok());
+    EXPECT_EQ(res.unwrap_ok(), 42);
+}
+
+TEST(CombinatorTest, ErrOrElseChain) {
+    auto res = make::Err(404)
+        | combine::OrElse([](int err) -> Result<int, std::string> {
             if (err == 404) return make::Ok(0);
             return make::Err(std::string("fatal"));
         });
@@ -40,17 +60,60 @@ TEST(CombinatorTest, OrElseRecovery) {
     EXPECT_EQ(res.unwrap_ok(), 0);
 }
 
-TEST(CombinatorTest, ComplexChain) {
-    auto res = make::Ok(1) | combine::MapOk([](int x) { return x + 9; })  // 10
-               | combine::AndThen([](int x) { return make::Ok(x * 2); })  // 20
-               | combine::AndThen([](int) {                               // err: "stop"
-                     return Result<int, std::string>(make::Err(std::string("stop")));
-                 })
-               | combine::MapOk([](int x) { return x + 100; })            // skipped, reset err
-               | combine::OrElse([](std::string s) {                      // work with err
-                     return make::Ok(static_cast<int>(s.length()));       // res.val = 4 = len("stop");
-                 });
+TEST(ResultFunc, OkMapErrChain) {
+    auto res = make::Ok(42)
+        | combine::MapErr([](int code) { return std::to_string(code) + " Not Found"; });
 
     EXPECT_TRUE(res.is_ok());
-    EXPECT_EQ(res.unwrap_ok(), 4);
+    EXPECT_EQ(res.unwrap_ok(), 42);
+}
+
+TEST(ResultFunc, ErrMapErrChain) {
+    auto res = make::Err(404)
+        | combine::MapErr([](int code) { return std::to_string(code) + " Not Found"; });
+
+    EXPECT_TRUE(res.is_err());
+    EXPECT_EQ(res.unwrap_err(), "404 Not Found");
+}
+
+TEST(ResultFunc, OkFilterSuccessChain) {
+    auto res = make::Ok(10)
+        | combine::AndThen([](int x) -> Result<int, std::string> { return make::Ok(x * 120); })
+        | combine::Filter([](int x) -> bool { return x > 5; }, std::string("too small"));
+
+    EXPECT_TRUE(res.is_ok());
+    EXPECT_EQ(res.unwrap_ok(), 1200);
+}
+
+TEST(ResultFunc, OkFilterFailureChain) {
+    auto res = make::Ok(3)
+        | combine::Filter([](int x) { return x > 5; }, std::string("too small"));
+
+    EXPECT_TRUE(res.is_err());
+    EXPECT_EQ(res.unwrap_err(), "too small");
+}
+
+TEST(ResultFunc, ErrFilterChain) {
+    auto res = make::Err(std::string("original error"))
+        | combine::Filter([](int x) { return x > 5; }, std::string("too small"));
+
+    EXPECT_TRUE(res.is_err());
+    EXPECT_EQ(res.unwrap_err(), "original error");
+}
+
+TEST(CombinatorTest, SuperComplexChain) {
+    using namespace std::string_literals;
+
+    auto res = make::Ok(5)
+        | combine::MapOk([](int x) { return x * 10; }) // 50
+        | combine::Filter([](int x) { return x > 40; }, std::string("too small")) // skipped
+        | combine::MapErr([](std::string s) { return std::string(s) + "!"; }) // skipped
+        | combine::AndThen([](int x) -> Result<int, std::string> { return make::Ok(x + 5); }) // 55
+        | combine::Filter([](int x) { return x < 50; }, "Triggered"s) // "Triggered"
+        | combine::MapErr([](const std::string& s) { return s.length(); }) // 9
+        | combine::OrElse([](size_t len) { return make::Ok(static_cast<int>(len)); }) // 9
+        | combine::MapOk([](int x) { return x * 2; }); // 18
+
+    EXPECT_TRUE(res.is_ok());
+    EXPECT_EQ(res.unwrap_ok(), 18);
 }
