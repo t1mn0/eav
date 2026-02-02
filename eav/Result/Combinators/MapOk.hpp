@@ -8,9 +8,11 @@ namespace eav::combine {
 
 namespace pipe {
 
+//                 ( func_ )
+// Result<T, E> -> ( T -> U ) -> Result<U, E>
+
 template <typename F>
 struct MapOk {
-    // func_: Result<T, E> -> (T -> U) -> Result<U, E>
     F func_;
 
     explicit MapOk(F&& f) : func_(std::move(f)) {}

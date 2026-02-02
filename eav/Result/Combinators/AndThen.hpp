@@ -9,6 +9,9 @@ namespace eav::combine {
 
 namespace pipe {
 
+//                 (      func_      )
+// Result<T, E> -> (T -> Result<U, E>) -> Result<U, E>
+
 template <typename F>
 struct AndThen {
     F func_;

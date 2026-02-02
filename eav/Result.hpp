@@ -1,24 +1,13 @@
 #pragma once
 
 #include <string_view>
-#include <type_traits>  // std::is_void_v
 #include <variant>
 
 #include "Result/Concepts/IsError.hpp"
-
-namespace eav {
-
-template <typename T, concepts::IsError E> requires(!std::is_void_v<T>)
-class Result;
-
-namespace make {
-
-template <typename T> Result<T, detail::PendingType> Ok(T&& val);
-template <concepts::IsError E> Result<detail::PendingType, E> Err(E&& val);
-
-}  // namespace make
-
-}  // namespace eav
+#include "Result/Detail/Tags.hpp"
+#include "Result/FwdDecl/Err.hpp"
+#include "Result/FwdDecl/Ok.hpp"
+#include "Result/FwdDecl/Result.hpp"
 
 namespace eav {
 
@@ -38,6 +27,13 @@ class [[nodiscard]] Result {
     Result(const Result<T, E>&) = default;
     Result(Result<T, E>&&) = default;
 
+    // Next constructor
+    // NOT SUPPORT:
+    //      arg: Result<U=T, R=E>&& <- this constraint doesnt overlap default move constructor
+    // SUPPORT:
+    // 1.   arg: Result<U=PendingType, R=E>&&           => Result<T,E>
+    // 2.   arg: Result<U=T,           R=PendingType>&& => Result<T,E>
+    // 3.   arg: Result<U=PendingType, R=PendingType>&& => Result<T,E>
     template <typename U, typename R>
     requires(
         (std::same_as<U, T> || std::same_as<U, detail::PendingType>) &&
@@ -71,14 +67,16 @@ class [[nodiscard]] Result {
     constexpr E& unwrap_err(std::string_view msg = "called .unwrap_ok() on Ok") &;
     constexpr E unwrap_err(std::string_view msg = "called .unwrap_ok() on Ok") &&;
 
-    // [TODO]: Option Conversion
+    // [TODO]: Option conversion
     // Option<T> erase_err() &;
 
   private:  // member functions:
+    // Private constructors that are called by friend functions Ok(...), Err(...);
+    // Argument Tag is used for the compiler to recognize a potentially ambiguous call when E=T (Result<T,T>)
     Result(detail::OkTag, T&& val);
     Result(detail::ErrTag, E&& val);
 
-  private:  // friends:
+  private:  // friends declaration:
     template <typename U>
     friend Result<U, detail::PendingType> make::Ok(U&&);
 
@@ -88,6 +86,7 @@ class [[nodiscard]] Result {
 
 }  // namespace eav
 
+// for including 'Result' "module" via '#include <eav/Result.hpp>':
 #include "Result/Combinators/AndThen.hpp"
 #include "Result/Combinators/MapOk.hpp"
 #include "Result/Combinators/OrElse.hpp"
