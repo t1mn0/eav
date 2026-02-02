@@ -2,44 +2,40 @@ name: CI Pipeline
 
 on:
   push:
-    branches: ["main"]
+    branches: [main]
   pull_request:
-    branches: ["main"]
+    branches: [main]
 
 jobs:
   build_test:
-    runs-on: ubuntu-24.04
-
+    name: build_test (${{ matrix.compiler }})
+    runs-on: ubuntu-22.04 # Самый стабильный образ сейчас
     strategy:
+      fail-fast: false
       matrix:
         compiler: [gcc-12, clang-15]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Dependencies
+      - name: Setup Compiler
         run: |
-          sudo apt-get update
           if [ "${{ matrix.compiler }}" = "gcc-12" ]; then
-            sudo apt-get install -y g++-12
+            sudo apt-get update && sudo apt-get install -y g++-12
             echo "CC=gcc-12" >> $GITHUB_ENV
             echo "CXX=g++-12" >> $GITHUB_ENV
           else
-            sudo apt-get install -y clang-15
+            # Clang 15 часто предустановлен, но проверим
+            sudo apt-get update && sudo apt-get install -y clang-15
             echo "CC=clang-15" >> $GITHUB_ENV
             echo "CXX=clang++-15" >> $GITHUB_ENV
           fi
 
       - name: Configure CMake
-        run: |
-          cmake -S . -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
-        run: cmake --build build --config Release
+        run: cmake --build build
 
       - name: Run Tests
-        working-directory: build
-        run: ctest --output-on-failure
+        run: cd build && ctest --output-on-failure
