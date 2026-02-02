@@ -2,14 +2,14 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [ "main" ]
   pull_request:
-    branches: [main]
+    branches: [ "main" ]
 
 jobs:
   build_test:
     name: build_test (${{ matrix.compiler }})
-    runs-on: ubuntu-22.04 # Самый стабильный образ сейчас
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -25,7 +25,6 @@ jobs:
             echo "CC=gcc-12" >> $GITHUB_ENV
             echo "CXX=g++-12" >> $GITHUB_ENV
           else
-            # Clang 15 часто предустановлен, но проверим
             sudo apt-get update && sudo apt-get install -y clang-15
             echo "CC=clang-15" >> $GITHUB_ENV
             echo "CXX=clang++-15" >> $GITHUB_ENV
