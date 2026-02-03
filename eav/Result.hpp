@@ -3,8 +3,8 @@
 #include <string_view>
 #include <variant>
 
+#include "Concepts/IsResult.hpp"
 #include "Result/Concepts/IsError.hpp"
-#include "Result/Concepts/IsResult.hpp"
 #include "Result/Detail/Tags.hpp"
 #include "Result/FwdDecl/Err.hpp"
 #include "Result/FwdDecl/Ok.hpp"

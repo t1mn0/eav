@@ -6,7 +6,7 @@
 
 namespace eav {
 
-// forward declaration Result<T,E>
+// forward declaration: Result<T,E>
 template <typename T, concepts::IsError E> requires(!std::is_void_v<T>)
 class Result;
 

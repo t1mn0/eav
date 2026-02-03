@@ -2,8 +2,8 @@
 
 #include <utility>  // std::forward
 
+#include "../Detail/Pending.hpp"
 #include "Concepts/IsError.hpp"
-#include "Detail/Pending.hpp"
 #include "Detail/Tags.hpp"
 
 namespace eav {

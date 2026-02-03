@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../../Concepts/IsResult.hpp"
 #include "../../Result.hpp"
-#include "../Concepts/IsResult.hpp"
 
 #include <functional>
 
