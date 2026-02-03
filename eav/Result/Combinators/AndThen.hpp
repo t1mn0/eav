@@ -5,7 +5,7 @@
 
 #include <functional>
 
-namespace eav::combine {
+namespace eav::combine::result {
 
 namespace pipe {
 
@@ -37,7 +37,7 @@ struct AndThen {
 
 template <typename F>
 auto AndThen(F&& func) {
-    return pipe::AndThen<std::decay_t<F>>{std::forward<F>(func)};
+    return pipe::AndThen<F>{std::forward<F>(func)};
 }
 
-}  // namespace eav::combine
+}  // namespace eav::combine::result

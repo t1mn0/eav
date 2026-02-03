@@ -4,9 +4,9 @@
 
 #include "../../Result.hpp"
 
-namespace eav::combine {
+namespace eav::combine::result {
 
-namespace pipe {
+namespace result::pipe {
 
 //                 (  func_  )
 // Result<T, E> -> ( E -> E' ) -> Result<T, E'>
@@ -34,11 +34,11 @@ struct MapErr {
     }
 };
 
-}  // namespace pipe
+}  // namespace result::pipe
 
 template <typename F>
 auto MapErr(F&& func) {
-    return pipe::MapErr{std::forward<F>(func)};
+    return result::pipe::MapErr{std::forward<F>(func)};
 }
 
-}  // namespace eav::combine
+}  // namespace eav::combine::result

@@ -10,6 +10,8 @@
 #include "Result/FwdDecl/Ok.hpp"
 #include "Result/FwdDecl/Result.hpp"
 
+#include "Option/FwdDecl/Option.hpp"
+
 namespace eav {
 
 template <typename T, concepts::IsError E> requires(!std::is_void_v<T>)
@@ -68,8 +70,9 @@ class [[nodiscard]] Result {
     constexpr E& unwrap_err(std::string_view msg = "called .unwrap_ok() on Ok") &;
     constexpr E unwrap_err(std::string_view msg = "called .unwrap_ok() on Ok") &&;
 
-    // [TODO]: Option conversion
-    // Option<T> erase_err() &;
+    // Conversion: Result<T,E> => Option<T>
+    Option<T> erase_err() const&;
+    Option<T> erase_err() &&;
 
   private:  // member functions:
     // Private constructors that are called by friend functions Ok(...), Err(...);
@@ -88,6 +91,7 @@ class [[nodiscard]] Result {
 }  // namespace eav
 
 // for including 'Result' "module" via '#include <eav/Result.hpp>':
+#include "Detail/Pipe.hpp"
 #include "Result/Combinators/AndThen.hpp"
 #include "Result/Combinators/Filter.hpp"
 #include "Result/Combinators/MapErr.hpp"
@@ -95,4 +99,3 @@ class [[nodiscard]] Result {
 #include "Result/Combinators/OrElse.hpp"
 #include "Result/Detail/ResultImpl.hpp"
 #include "Result/Make.hpp"
-#include "Result/Pipe.hpp"

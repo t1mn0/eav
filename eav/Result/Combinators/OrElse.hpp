@@ -4,7 +4,7 @@
 
 #include <functional>
 
-namespace eav::combine {
+namespace eav::combine::result {
 
 namespace pipe {
 
@@ -43,7 +43,7 @@ struct OrElse {
 
 template <typename F>
 auto OrElse(F&& func) {
-    return pipe::OrElse<std::decay_t<F>>{std::forward<F>(func)};
+    return pipe::OrElse<F>{std::forward<F>(func)};
 }
 
-}  // namespace eav::combine
+}  // namespace eav::combine::result

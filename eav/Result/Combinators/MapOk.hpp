@@ -4,7 +4,7 @@
 
 #include "../../Result.hpp"
 
-namespace eav::combine {
+namespace eav::combine::result {
 
 namespace pipe {
 
@@ -41,4 +41,4 @@ auto MapOk(F&& func) {
     return pipe::MapOk{std::forward<F>(func)};
 }
 
-}  // namespace eav::combine
+}  // namespace eav::combine::result

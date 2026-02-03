@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <utility>
 
+#include "../../Option.hpp"
+#include "../../Option/Make.hpp"
 #include "../../Result.hpp"
 
 namespace eav {
@@ -110,6 +112,25 @@ template <typename T, concepts::IsError E> requires(!std::is_void_v<T>)
 constexpr E Result<T, E>::unwrap_err(std::string_view msg) && {
     if (is_ok()) throw std::runtime_error(std::string(msg));
     return std::get<1>(std::move(value_));
+}
+
+// --- Conversion: to Option<T> ---
+template <typename T, concepts::IsError E>
+requires(!std::is_void_v<T>)
+Option<T> Result<T, E>::erase_err() const& {
+    if (is_ok()) {
+        return make::Some(unwrap_ok());
+    }
+    return make::None();
+}
+
+template <typename T, concepts::IsError E>
+requires(!std::is_void_v<T>)
+Option<T> Result<T, E>::erase_err() && {
+    if (is_ok()) {
+        return make::Some(std::move(*this).unwrap_ok());
+    }
+    return make::None();
 }
 
 }  // namespace eav

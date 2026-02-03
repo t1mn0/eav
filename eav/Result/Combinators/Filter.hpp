@@ -4,7 +4,7 @@
 
 #include "../../Result.hpp"
 
-namespace eav::combine {
+namespace eav::combine::result {
 
 namespace pipe {
 
@@ -46,4 +46,4 @@ auto Filter(P&& predicate, E&& else_err) {
     return pipe::Filter{std::move(predicate), std::move(else_err)};
 }
 
-}  // namespace eav::combine
+}  // namespace eav::combine::result
