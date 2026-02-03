@@ -82,13 +82,3 @@ TEST(OptionCombinatorTest, ComplexOptionChain) {
     EXPECT_TRUE(res.has_value());
     EXPECT_EQ(res.unwrap(), 42);
 }
-
-// TEST(OptionCombinatorTest, ResultToOptionConversion) {
-//     Result<int, std::string> r = make::Ok(100);
-
-//     auto opt = std::move(r).erase_err()
-//         | combine::option::Map([](int x) { return x / 2; });
-
-//     EXPECT_TRUE(opt.has_value());
-//     EXPECT_EQ(opt.unwrap(), 50);
-// }

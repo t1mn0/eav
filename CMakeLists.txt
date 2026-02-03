@@ -15,5 +15,5 @@ target_compile_features(eav INTERFACE cxx_std_20)
 enable_testing()
 add_subdirectory(test)
 
-add_executable(example main.cpp)
-target_link_libraries(example PRIVATE eav)
+#add_executable(example main.cpp)
+#target_link_libraries(example PRIVATE eav)

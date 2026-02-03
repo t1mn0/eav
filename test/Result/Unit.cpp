@@ -52,3 +52,10 @@ TEST(ResultTest, MoveOnlyTypeSupport) {
     auto extracted = std::move(r).unwrap_ok();
     EXPECT_EQ(*extracted, 100);
 }
+
+TEST(ResultTest, ResultToOptionAndMapConversion) {
+    Result<int, std::string> r = make::Ok(100);
+    auto opt = std::move(r).erase_err() | combine::option::Map([](int x) { return x / 2; });
+    EXPECT_TRUE(opt.has_value());
+    EXPECT_EQ(opt.unwrap(), 50);
+}
