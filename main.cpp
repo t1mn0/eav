@@ -1,42 +1,55 @@
 #include <iostream>
 #include <string>
+#include <vector>
 
-#include <eav/Result.hpp>
+#include <eav/Option.hpp>
 
 using namespace eav;
 
-struct AppErr {
-    int code;
-    std::string msg;
-};
+// clang-format off:
+Option<int> get_index(const std::string& name) {
+    if (name == "Admin") return make::Some(0);
+    if (name == "User") return make::Some(1);
+    return make::None();  // Option<PendingType>
+}
 
-Result<int, AppErr> GetValue(bool success) {
-    if (success) {
-        return make::Ok(42);
+Option<std::string> get_role_name(int index) {
+    static const std::vector<std::string> roles = {std::string("Superuser"), std::string("Regular")};
+    if (index >= 0 && index < roles.size()) {
+        return make::Some(roles[index]);
     }
-    return make::Err(AppErr{404, "Not Found"});
+    return make::None();
 }
 
 int main() {
-    // clang-format off
-    auto chain1 = GetValue(true)
-        | combine::MapOk([](int v) { return v * 2; })
-        | combine::MapOk([](int v) { return "Result is " + std::to_string(v); });
+    {
+        auto result = make::Some(std::string("Admin"))
+            | combine::option::AndThen([](const std::string& name) { return get_index(name); })
+            | combine::option::AndThen([](int idx) { return get_role_name(idx); })
+            | combine::option::Map([](const std::string& role) { return "[" + role + "]"; });
 
-    if (chain1.is_ok()) {
-        std::cout << std::move(chain1).unwrap_ok() << std::endl;
+        if (result.has_value()) {
+            std::cout << "Test 1 Success: " << result.unwrap() << std::endl;  // [Superuser]
+        } else {
+            std::cerr << "Test 1 Failed: Expected value, got None" << std::endl;
+        }
     }
 
-    auto chain2 = GetValue(false)
-                | combine::MapOk([](int v) {
-                    std::cout << "This will not be printed" << std::endl;
-                    return v + 1; })
-                | combine::MapOk([](int v) { return std::to_string(v); });
+    {
+        Option<double> final_opt = make::None()
+            | combine::option::Map([](int x) { return x + 1; })
+            | combine::option::AndThen([](int x) { return make::Some(double(x)); });
 
-    if (chain2.is_err()) {
-        auto err = std::move(chain2).unwrap_err();
-        std::cout << "Chain failed correctly with code: " << err.code
-                  << " and msg: " << err.msg << std::endl;
+        if (!final_opt.has_value()) {
+            std::cout << "Test 3 Success: Lazy None bypassed and converted to Option<double>" << std::endl;
+        }
+    }
+
+    {
+        auto opt = make::None();
+        std::string val = std::move(opt).unwrap_or(std::string("Fallback"));
+
+        std::cout << "Test 4 Fallback: " << val << std::endl;
     }
 
     return 0;

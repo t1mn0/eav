@@ -14,3 +14,4 @@ FetchContent_MakeAvailable(
 )
 
 add_subdirectory(Result)
+add_subdirectory(Option)
