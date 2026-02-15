@@ -46,3 +46,41 @@ TEST(OptionTest, MoveOnlyTypeSupport) {
     auto extracted = std::move(o.unwrap());
     EXPECT_EQ(*extracted, 100);
 }
+
+TEST(OptionRefTest, CreationSomeRef) {
+    int x = 42;
+    auto o = make::Some(x);
+
+    EXPECT_TRUE(o.has_value());
+    EXPECT_EQ(&(o.unwrap()), &x);
+    EXPECT_EQ(o.unwrap(), 42);
+}
+
+TEST(OptionRefTest, ReferenceStability) {
+    int x = 10;
+    auto o = make::Some(x);
+
+    x = 20;
+    EXPECT_EQ(o.unwrap(), 20);
+}
+
+TEST(OptionRefTest, CreationNoneRef) {
+    Option<int&> o = make::None();
+    EXPECT_FALSE(o.has_value());
+}
+
+TEST(OptionRefTest, UnwrapOrRef) {
+    int x = 42;
+    Option<int&> o_some = make::Some(x);
+    Option<int&> o_none = make::None();
+
+    EXPECT_EQ(o_some.unwrap_or(0), 42);
+    EXPECT_EQ(o_none.unwrap_or(11), 11);
+}
+
+TEST(OptionRefTest, ConstReference) {
+    const std::string s = "hello";
+    auto o = make::Some(s);  // Option<const std::string&>
+    static_assert(std::same_as<decltype(o.unwrap()), const std::string&>);
+    EXPECT_EQ(o.unwrap(), "hello");
+}

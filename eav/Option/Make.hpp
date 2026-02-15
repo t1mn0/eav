@@ -15,6 +15,12 @@ Option<std::decay_t<T>> Some(T&& val) {
     return Option<std::decay_t<T>>(detail::SomeTag{}, std::forward<T>(val));
 }
 
+// Some(T&) => Option<T&>
+template <typename T>
+Option<T&> Some(T& val) {
+    return Option<T&>(detail::SomeTag{}, val);
+}
+
 // None() => Option<?>
 inline Option<detail::PendingType> None() {
     return Option<detail::PendingType>(detail::NoneTag{});

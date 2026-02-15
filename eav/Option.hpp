@@ -72,6 +72,8 @@ class [[nodiscard]] Option {
 
 }  // namespace eav
 
+#include "Option/Detail/PartialSpecDecl.hpp"
+
 // for including 'Option' "module" via '#include <eav/Option.hpp>':
 #include "Detail/Pipe.hpp"
 #include "Option/Combinators/AndThen.hpp"

@@ -82,3 +82,50 @@ TEST(OptionCombinatorTest, ComplexOptionChain) {
     EXPECT_TRUE(res.has_value());
     EXPECT_EQ(res.unwrap(), 42);
 }
+
+TEST(OptionCombinatorTest, SomeRefMapToValue) {
+    int x = 10;
+    auto res = make::Some(x)
+        | combine::option::Map([](int& val) { return val * 2; }); // int& -> int
+
+    static_assert(std::same_as<decltype(res), Option<int>>);
+    EXPECT_TRUE(res.has_value());
+    EXPECT_EQ(res.unwrap(), 20);
+}
+
+TEST(OptionCombinatorTest, SomeRefFilter) {
+    int x = 10;
+    auto res = make::Some(x)
+        | combine::option::Filter([](int& val) { return val > 5; });
+
+    EXPECT_TRUE(res.has_value());
+    EXPECT_EQ(&(res.unwrap()), &x);
+}
+
+TEST(OptionCombinatorTest, SomeRefAndThenToRef) {
+    int x = 10;
+    int y = 20;
+
+    auto res = make::Some(x)
+        | combine::option::AndThen([&](int& val) -> Option<int&> {
+            if (val == 10) return make::Some(y);
+            return make::None();
+        });
+
+    EXPECT_EQ(&(res.unwrap()), &y);
+}
+
+TEST(OptionCombinatorTest, ComplexRefToValueChain) {
+    using namespace std::string_literals;
+    struct User { std::string name; };
+
+    User u{"Tim"};
+    auto res = make::Some(u) // Option<User&>
+        | combine::option::Filter([](const User& user) { return !user.name.empty(); })
+        | combine::option::Map([](const User& user) { return "Hello, " + user.name; })
+        | combine::option::AndThen([](std::string s) {
+            return make::Some(s.length());
+          }); // -> Option<size_t>
+
+    EXPECT_EQ(res.unwrap(), 10); // "Hello, Tim" length
+}
