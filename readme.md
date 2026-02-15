@@ -27,30 +27,9 @@ eav-lib provides ability to chain complex logic into a single, readable flow. Wi
 - `Filter`: keeps the value only if it satisfies a predicate;
 - `OrElse`: provides a fallback `Option` if the current one is `None`;
 
-## Example
-```cpp
-#include <eav/Result.hpp>
-#include <iostream>
-#include <string>
-
-using namespace eav;
-
-auto get_data(int id) {
-    if (id > 0) return make::Ok(id * 2);
-    return make::Err("invalid id");
-}
-
-int main() {
-    auto res = get_data(10)
-        | combine::MapOk([](int n) { return n + 1; })
-        | combine::Filter([](int n) { return n < 100; }, "too big")
-        | combine::OrElse([](auto err) { return make::Ok(0); });
-
-    if (res) {
-        std::cout << "Result: " << res.unwrap_ok() << std::endl;
-    }
-}
-```
+## Examples
+- [Result tests](test/Result/Func.cpp)
+- [Option tests](test/Option/Func.cpp)
 
 ## Install
 Since the __eav__ is header-only, you can simply copy the eav folder to your project or use CMake's FetchContent:
