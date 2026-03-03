@@ -77,15 +77,20 @@ class [[nodiscard]] Result {
   private:  // member functions:
     // Private constructors that are called by friend functions Ok(...), Err(...);
     // Argument Tag is used for the compiler to recognize a potentially ambiguous call when E=T (Result<T,T>)
-    Result(detail::OkTag, T&& val);
-    Result(detail::ErrTag, E&& val);
+    template <typename U>
+    requires std::constructible_from<T, U>
+    Result(detail::OkTag, U&& val);
+
+    template <typename U>
+    requires std::constructible_from<E, U>
+    Result(detail::ErrTag, U&& val);
 
   private:  // friends declaration:
     template <typename U>
-    friend Result<U, detail::PendingType> make::Ok(U&&);
+    friend Result<std::decay_t<U>, detail::PendingType> make::Ok(U&&);
 
     template <concepts::IsError R>
-    friend Result<detail::PendingType, R> make::Err(R&&);
+    friend Result<detail::PendingType, std::decay_t<R>> make::Err(R&&);
 };
 
 }  // namespace eav

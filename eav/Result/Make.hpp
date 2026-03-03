@@ -13,16 +13,18 @@ class Result;
 
 namespace make {
 
-// Ok(T) => Result<T, PendingType>
+// Ok(T) => Result<DecayedT, PendingType>
 template <typename T>
-Result<T, detail::PendingType> Ok(T&& val) {
-    return Result<T, detail::PendingType>(detail::OkTag{}, std::forward<T>(val));
+Result<std::decay_t<T>, detail::PendingType> Ok(T&& val) {
+    using DecayedT = std::decay_t<T>;
+    return Result<DecayedT, detail::PendingType>(detail::OkTag{}, std::forward<T>(val));
 }
 
-// Err(E) => Result<PendingType, E>
+// Err(E) => Result<PendingType, DecayedE>
 template <concepts::IsError E>
-Result<detail::PendingType, E> Err(E&& val) {
-    return Result<detail::PendingType, E>(detail::ErrTag{}, std::forward<E>(val));
+Result<detail::PendingType, std::decay_t<E>> Err(E&& val) {
+    using DecayedE = std::decay_t<E>;
+    return Result<detail::PendingType, DecayedE>(detail::ErrTag{}, std::forward<E>(val));
 }
 
 }  // namespace make

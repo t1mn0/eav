@@ -12,10 +12,14 @@ namespace eav {
 // --- Constructors ---
 
 template <typename T, concepts::IsError E> requires(!std::is_void_v<T>)
-Result<T, E>::Result(detail::OkTag, T&& val) : value_(std::in_place_index<0>, std::move(val)) {}
+template <typename U> requires std::constructible_from<T, U>
+Result<T, E>::Result(detail::OkTag, U&& val)
+    : value_(std::in_place_index<0>, std::forward<U>(val)) {}
 
 template <typename T, concepts::IsError E> requires(!std::is_void_v<T>)
-Result<T, E>::Result(detail::ErrTag, E&& val) : value_(std::in_place_index<1>, std::move(val)) {}
+template <typename U> requires std::constructible_from<E, U>
+Result<T, E>::Result(detail::ErrTag, U&& val)
+    : value_(std::in_place_index<1>, std::forward<U>(val)) {}
 
 template <typename T, concepts::IsError E> requires(!std::is_void_v<T>)
 template <typename U, typename R>
