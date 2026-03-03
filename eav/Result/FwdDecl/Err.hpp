@@ -6,7 +6,7 @@
 namespace eav::make {
 
 // forward declaration: Err()
-template <concepts::IsError E>
+template <typename E> requires concepts::IsError<std::decay_t<E>>
 Result<detail::PendingType, std::decay_t<E>> Err(E&& val);
 
 }  // namespace eav::make

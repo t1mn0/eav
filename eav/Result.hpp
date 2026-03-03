@@ -86,10 +86,10 @@ class [[nodiscard]] Result {
     Result(detail::ErrTag, U&& val);
 
   private:  // friends declaration:
-    template <typename U>
+    template <typename U> requires(!std::is_void_v<std::decay_t<U>>)
     friend Result<std::decay_t<U>, detail::PendingType> make::Ok(U&&);
 
-    template <concepts::IsError R>
+    template <typename R> requires concepts::IsError<std::decay_t<R>>
     friend Result<detail::PendingType, std::decay_t<R>> make::Err(R&&);
 };
 
