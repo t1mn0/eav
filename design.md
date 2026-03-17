@@ -68,3 +68,6 @@ Guarantees:
 ## Conversions:
 - Result method **`erase_err()`**: Converts `Result<T, E>` to `Option<T>`;
 - Option combinator **`OkOr(E err)`**: Converts `Option<T>` to `Result<T, E>`, using the provided error if the option has not value;
+
+---
+![img](https://docs.google.com/drawings/d/e/2PACX-1vQQCV-mTEft46PG-soGc2VxL5ZGrhl8GPYY0yASWslOxSh9SPI6kpI46m0zsrjDMN3dBaN1hXzo0ssL/pub?w=960&h=720)
